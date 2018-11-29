@@ -1,2 +1,10 @@
+# cache
 __pycache__/
 *.py[cod]
+
+# bak dir
+bak/
+
+# test file
+test.py
+
