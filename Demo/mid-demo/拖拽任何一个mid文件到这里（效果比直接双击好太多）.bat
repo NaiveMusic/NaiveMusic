@@ -1,1 +1,1 @@
-..\fluidsynth.exe -ni ..\GeneralUser_GS.sf2 %1
+..\..\fluidsynth\fluidsynth.exe -ni ..\..\fluidsynth\GeneralUser_GS.sf2 %1

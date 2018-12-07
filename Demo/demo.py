@@ -1,8 +1,10 @@
-import subprocess
 import sys
+import subprocess
 from PyQt5 import QtCore, QtWidgets, uic
-
 Ui_MainWindow, QtBaseClass = uic.loadUiType('./demo.ui')
+
+sys.path.append('..')
+from const import *
 
 
 class Demo(QtWidgets.QMainWindow, Ui_MainWindow):
@@ -12,8 +14,8 @@ class Demo(QtWidgets.QMainWindow, Ui_MainWindow):
         self.setupUi(self)
         self.setWindowTitle('Demo')
 
-        for line in open('instrument.txt'):
-            self.instrument.addItem(line.strip())
+        for inst in INSTRUMENT:
+            self.instrument.addItem('{} {}'.format(inst, INSTRUMENT[inst]))
         self.instrument.currentIndexChanged.connect(self.ChangeInst)
         self.pitchButtons = QtWidgets.QButtonGroup()
         for i in range(8):
@@ -25,7 +27,8 @@ class Demo(QtWidgets.QMainWindow, Ui_MainWindow):
         self.pitchButtons.buttonClicked.connect(self.MousePlay)
         self.play.clicked.connect(self.MusicPlay)
 
-        self.fs = subprocess.Popen(['fluidsynth.exe', '-n', 'GeneralUser_GS.sf2'], stdin=subprocess.PIPE, bufsize=0)
+        self.fs = subprocess.Popen([r'..\fluidsynth\fluidsynth.exe', '-n', r'..\fluidsynth\GeneralUser_GS.sf2'],
+                                   stdin=subprocess.PIPE, bufsize=0)
         self.pitch = ['58', '60', '62', '64', '65', '67', '69', '71', '72']
 
     def send(self, cmd):
