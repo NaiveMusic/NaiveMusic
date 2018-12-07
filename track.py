@@ -1,5 +1,6 @@
 from note import Note
 from const import *
+import mido
 
 
 class Track():
@@ -47,3 +48,7 @@ class Track():
         # TODO: sort notes based on note start time
         # translate them into midi noteon and noteoff events
         return  #list of events
+
+    def toMidi(self):
+        pass
+        
