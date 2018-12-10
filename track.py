@@ -19,6 +19,9 @@ class Track():
             raise ValueError('Note not found')
         return self.__notes[noteID]
 
+    def getNoteIDList(self):
+        return self.__notes.keys()
+
     def setNote(self, noteID, key=None, vel=None, on=None, off=None):
         if noteID not in self.__notes:
             raise ValueError('Note not found')
