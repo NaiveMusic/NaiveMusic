@@ -14,7 +14,10 @@ class File():
 
     def addTrack(self, inst=0, vel=100):
         self.__tracks[self.__curID] = Track(inst, vel)
+        trackID = self.__curID
         self.__curID += 1
+        return trackID
+
 
     def delTrack(self, trackID):
         if trackID not in self.__tracks:
