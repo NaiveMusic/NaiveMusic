@@ -20,16 +20,16 @@ def main():
 	a.addNote(3)
 	a.display()
 
-	a.addTrack(viewID[1])
+	a.addTrack(viewID[1], inst = 72, vel = 101)
 	a.display()
 
+	a.addNote(2, vel = 98)
+	a.addNote(4, on = 12, off = 15)
 	a.addNote(2)
-	a.addNote(4)
-	a.addNote(2)
-	a.addNote(4)
-	a.display()
+	a.addNote(4, vel = 97, on = 9, off = 7) # NOTICE off < on
+ 	a.display()
 
-	a.addTrack(viewID[2])
+	a.addTrack(viewID[2], vel = 99)
 	a.display()
 
 	a.addNote(9)
