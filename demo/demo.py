@@ -6,7 +6,6 @@ Ui_MainWindow, QtBaseClass = uic.loadUiType('./demo.ui')
 sys.path.append('..')
 from const import *
 
-
 class Demo(QtWidgets.QMainWindow, Ui_MainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)

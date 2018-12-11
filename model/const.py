@@ -1,3 +1,5 @@
+MAX_TRACK_NUM = 16
+
 INSTRUMENT = {
     0: 'Stereo Grand',
     1: 'Bright Grand',

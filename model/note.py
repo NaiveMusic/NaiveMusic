@@ -1,5 +1,3 @@
-from const import *
-
 
 class Note():
     def __init__(self, key, vel, on, off):
