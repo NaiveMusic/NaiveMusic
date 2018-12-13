@@ -5,31 +5,23 @@ from model.file import File
 from model.track import Track
 from model.const import *
 from controller.audioController import AudioController
+from controller.trackController import TrackController
 
 
-class MainController():
+class MainController(TrackController, AudioController):
     def __init__(self):
+        TrackController.__init__(self)
+        AudioController.__init__(self)
         self.curFile = File(bpm=120)
-        self.__curTrackID = None
-        self.__curTrack = None
-        self.ac = AudioController()
 
     def setCurTrack(self, trackID):
-        self.__curTrackID = trackID
-        self.__curTrack = self.curFile.getTrack(trackID)
-
-    @property
-    def curTrackID(self):
-        return self.__curTrackID
-
-    @property
-    def curTrack(self):
-        return self.__curTrack
+        self._curTrackID = trackID
+        self._curTrack = self.curFile.getTrack(trackID)
 
     def playAll(self):
         self.curFile.toDemoMidi()
-        self.ac.play()
+        self._play()
 
     def playTrack(self, trackID):
         self.curFile.getTrack(trackID).toDemoMidi(self.curFile.getBPM())
-        self.ac.play()
+        self._play()
