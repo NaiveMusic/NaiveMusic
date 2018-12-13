@@ -66,7 +66,7 @@ class Track():
 
         mid.tracks.append(track)
         track.append(Message('program_change', channel=channel, program=self.__inst, time=0))
-        track.append(Message('control_change', channel=channel, control=7, value=self.__vel, time=192 * 4))
+        track.append(Message('control_change', channel=channel, control=7, value=self.__vel, time=0))
         track.append(MetaMessage('set_tempo', tempo=bpm2tempo(bpm)))
         for note in self.demoNotes:
             if note == ' ':
@@ -77,8 +77,6 @@ class Track():
                 track.append(Message('note_on', channel=channel, note=pitch[note], velocity=100, time=0))
                 track.append(Message('note_off', channel=channel, note=pitch[note], velocity=100, time=192))
 
-        track.append(Message('note_on', channel=channel, note=64, velocity=0, time=0))
-        track.append(Message('note_off', channel=channel, note=64, velocity=0, time=192))
         if save:
-            mid.save('tmp.mid')
+            mid.save('fluidsynth/tmp.mid')
         return track

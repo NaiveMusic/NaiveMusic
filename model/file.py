@@ -53,4 +53,4 @@ class File():
         for i, track in enumerate(self.__tracks.values()):
             midiTrack = track.toDemoMidi(bpm=self.__bpm, channel=i, save=False)
             mid.tracks.append(midiTrack)
-        mid.save('tmp.mid')
+        mid.save('fluidsynth/tmp.mid')
