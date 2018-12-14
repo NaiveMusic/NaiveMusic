@@ -15,40 +15,46 @@ class MainController(SheetController, AudioController):
         AudioController.__init__(self)
         self._curFile = File(bpm=120)
 
-    def setCurTrack(self, trackID):
-        self._curTrackID = trackID
-        self._curTrack = self.getTrack(trackID)
-
-    def playAll(self):
-        self.toDemoMidi()
-        self._play()
-
-    def playTrack(self, trackID):
-        self.getTrack(trackID).toDemoMidi(self.getBPM())
-        self._play()
-
-    def getTrackNum(self):
-        return len(self._curFile.tracks)
-
+    # Track part
     def getTrack(self, trackID):
         if trackID not in self._curFile.tracks:
             raise ValueError('Track ID {} not found when get'.format(trackID))
         return self._curFile.tracks[trackID]
 
+    def getTrackNum(self):
+        return len(self._curFile.tracks)
+
+    def getTrackInst(self, trackID):
+        return self.getTrack(trackID).inst
+
+    def getTrackVel(self, trackID):
+        return self.getTrack(trackID).vel
+
+    def setCurTrack(self, trackID):
+        self._curTrackID = trackID
+        self._curTrack = self.getTrack(trackID)
+
+    def setTrackInst(self, trackID, inst):
+        if inst not in INSTRUMENT:
+            raise ValueError('Instrument {} not found'.format(inst))
+        self.getTrack(trackID).inst = inst
+
+    def setTrackVel(self, trackID, vel):
+        if not isinstance(vel, int) or vel < 0 or vel > 127:
+            raise ValueError('Velocity must be int within 0~127, not {}'.format(vel))
+        self.getTrack(trackID).vel = vel
+
     def addTrack(self, inst=0, vel=100):
-        if len(self._curFile.tracks) >= MAX_TRACK_NUM:
+        if self.getTrackNum() >= MAX_TRACK_NUM:
             raise OverflowError('Track numbers cannot exceed {}'.format(MAX_TRACK_NUM))
-        self._curFile.tracks[self._curFile.curID] = Track(inst, vel)
-        trackID = self._curFile.curID
-        self._curFile.curID += 1
-        return trackID
+        return self._curFile.addTrack(inst, vel)
 
     def delTrack(self, trackID):
         if trackID not in self._curFile.tracks:
             raise ValueError('Track ID {} not found when del'.format(trackID))
-        poped = self._curFile.tracks.pop(trackID)
-        del poped
+        self._curFile.delTrack(trackID)
 
+    # File part
     def setBPM(self, bpm):
         if not isinstance(bpm, int) or bpm < 0 or bpm > 200:
             raise ValueError('bmp must be int within 0~200, not {}'.format(bpm))
@@ -57,18 +63,48 @@ class MainController(SheetController, AudioController):
     def getBPM(self):
         return self._curFile.bpm
 
-    def toEvents(self):
-        # TODO
-        return
-
     def saveFile(self):
         # TODO: use serialization
         return
 
-    def toDemoMidi(self):
+    # Play part
+    def playAll(self):
+        self.toFileMidi()
+        self._play()
+
+    def playTrack(self, trackID):
+        self.toTrackMidi(trackID, self.getBPM())
+        self._play()
+
+    def toFileMidi(self):
         mid = MidiFile()
 
-        for i, track in enumerate(self._curFile.tracks.values()):
-            midiTrack = track.toDemoMidi(bpm=self._curFile.bpm, channel=i, save=False)
+        for i, trackID in enumerate(self._curFile.tracks):
+            midiTrack = self.toTrackMidi(trackID=trackID, bpm=self.getBPM(), channel=i, save=False)
             mid.tracks.append(midiTrack)
         mid.save('fluidsynth/tmp.mid')
+
+    def toTrackMidi(self, trackID, bpm, channel=0, save=True):
+        track = MidiTrack()
+        curTrack = self.getTrack(trackID)
+        pitch = [58, 60, 62, 64, 65, 67, 69, 71, 72]
+
+        track.append(Message('program_change', channel=channel, program=curTrack.inst, time=0))
+        track.append(Message('control_change', channel=channel, control=7, value=curTrack.vel, time=0))
+        track.append(MetaMessage('set_tempo', tempo=bpm2tempo(bpm)))
+        for note in curTrack.demoNotes:
+            if note == ' ':
+                track.append(Message('note_on', channel=channel, note=64, velocity=0, time=0))
+                track.append(Message('note_off', channel=channel, note=64, velocity=0, time=192))
+            elif int(note) > 0 and int(note) < 9:
+                note = int(note)
+                track.append(Message('note_on', channel=channel, note=pitch[note], velocity=100, time=0))
+                track.append(Message('note_off', channel=channel, note=pitch[note], velocity=100, time=192))
+        if save:
+            mid = MidiFile()
+            mid.tracks.append(track)
+            mid.save('fluidsynth/tmp.mid')
+        return track
+
+    def sortedNote(self, trackID):
+        pass
