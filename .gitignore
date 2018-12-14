@@ -8,4 +8,7 @@ bak/
 # test file
 test.py
 
-.DS_Store
+
+# tmp mid file
+tmp.mid
+

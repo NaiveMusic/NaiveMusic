@@ -74,10 +74,10 @@ class MainWindow_Demo(QtWidgets.QMainWindow):
 
     # 添加track
     def addTrack(self):
-        trackID = self.mc.curFile.addTrack(inst=0, vel=100)
+        trackID = self.mc.addTrack(inst=0, vel=100)
         print('track {} added'.format(trackID))
 
-        curTrackNum = self.mc.curFile.getLen()
+        curTrackNum = self.mc.getTrackNum()
         trackView = TrackView_Demo(self.mc, trackID)
 
         self.trackViews[trackID] = trackView
@@ -93,7 +93,7 @@ class MainWindow_Demo(QtWidgets.QMainWindow):
 
     # 设置bpm
     def setBPM(self):
-        self.mc.curFile.setBPM(self.bpm.value())
+        self.mc.setBPM(self.bpm.value())
 
     # 全局播放
     def playAll(self):
@@ -121,7 +121,7 @@ class MainWindow_Demo(QtWidgets.QMainWindow):
         self.switchButtons.removeButton(trackView.trackSwitch)
         self.deleteButtons.removeButton(trackView.trackDel)
         trackView.delTrack()
-        self.mc.curFile.delTrack(trackID)
+        self.mc.delTrack(trackID)
 
     # 更新track的text
     def updateTrack(self):
