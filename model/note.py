@@ -3,6 +3,22 @@ class Note():
     def __init__(self, key, vel, on, off):
         self.setAll(key, vel, on, off)
 
+    @property
+    def on(self):
+        return self.__on
+
+    @property
+    def off(self):
+        return self.__off
+
+    @property
+    def key(self):
+        return self.__key
+    
+    @property
+    def vel(self):
+        return self.__vel
+        
     def getInfo(self):
         '''Return note key, velocity, start time and stop time'''
         return self.__key, self.__vel, self.__on, self.__off
