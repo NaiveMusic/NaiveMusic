@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>882</width>
+    <width>894</width>
     <height>785</height>
    </rect>
   </property>
@@ -5417,8 +5417,8 @@ QPushButton:checked:pressed, QPushButton:hover:!checked:!pressed { border-image:
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>882</width>
-     <height>30</height>
+     <width>894</width>
+     <height>26</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">

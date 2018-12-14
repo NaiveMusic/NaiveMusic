@@ -34,9 +34,10 @@ class NMusicWindow(QMainWindow, Ui_MainWindow):
     def initPianoRoll(self):
         for row in range(self.PianoRoll.rowCount()):
             for column in range(self.PianoRoll.columnCount()):
-                key = self.PianoRoll.itemAtPosition(row, column).widget()
-                if isinstance(key, QPushButton):
-                    key.clicked.connect(self.key_clicked)
+                if self.PianoRoll.itemAtPosition(row, column) is not None:
+                    key = self.PianoRoll.itemAtPosition(row, column).widget()
+                    if isinstance(key, QPushButton):
+                        key.clicked.connect(self.key_clicked)
 
     # PianoRoll点击事件
     def key_clicked(self):
@@ -50,14 +51,16 @@ class NMusicWindow(QMainWindow, Ui_MainWindow):
     def initSheet(self):
         for row in range(self.Sheet.rowCount()):
             for column in range(self.Sheet.columnCount()):
-                note = self.Sheet.itemAtPosition(row, column).widget()
-                if isinstance(note, QPushButton):
-                    note.clicked.connect(self.note_clicked)
+                if self.Sheet.itemAtPosition(row, column) is not None:
+                    note = self.Sheet.itemAtPosition(row, column).widget()
+                    if isinstance(note, QPushButton):
+                        note.clicked.connect(self.note_clicked)
 
     # Sheet点击事件
     def note_clicked(self):
         sender = self.sender()
 
         # Change below
-        print(sender.objectName())
+        print(sender.objectName() + ': ' +
+              ("on" if sender.isChecked() else "off"))
         # Change above
