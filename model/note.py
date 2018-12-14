@@ -8,12 +8,12 @@ class Note():
         return self.__key, self.__vel, self.__on, self.__off
 
     def setKey(self, key):
-        if not isinstance(key, int) or key < 0 or key > 127:
+        if key not in KEY_RANGE:
             raise ValueError('Key must be int within 0~127')
         self.__key = key
 
     def setVel(self, vel):
-        if not isinstance(vel, int) or vel < 0 or vel > 127:
+        if vel not in VEL_RANGE:
             raise ValueError('Velocity must be int within 0~127')
         self.__vel = vel
 
