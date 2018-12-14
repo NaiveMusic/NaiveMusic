@@ -53,7 +53,7 @@ class Track():
                  resultList.append(noteID)
         return resultList
 
-    def __intersect(on1, off1, on2, off2):
+    def __intersect(self, on1, off1, on2, off2):
         """ Return boolen value for the condition
             whether interval [on1,off1) intersects with [on2,off2)
         """
