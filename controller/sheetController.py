@@ -7,7 +7,8 @@ import pickle
 
 
 #TODO: split some MainController function to here
-class TrackController():
+# note相关操作
+class SheetController():
     def __init__(self):
         self._curTrackID = None
         self._curTrack = None
@@ -19,3 +20,10 @@ class TrackController():
     @property
     def curTrack(self):
         return self._curTrack
+    
+    def addNote(self):
+        pass
+
+
+
+    
