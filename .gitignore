@@ -8,3 +8,4 @@ bak/
 # test file
 test.py
 
+.DS_Store
