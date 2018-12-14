@@ -58,10 +58,10 @@ class TrackView_Demo(QtWidgets.QWidget):
         self.mc.playTrack(self.trackID)
 
     def changeInst(self):
-        self.mc.getTrack(self.trackID).setInst(self.trackInst.currentIndex())
+        self.mc.setTrackInst(self.trackID,self.trackInst.currentIndex())
 
     def changeVel(self):
-        self.mc.getTrack(self.trackID).setVel(self.trackVel.value())
+        self.mc.setTrackVel(self.trackID,self.trackVel.value())
 
     def delTrack(self):
         self.hide()
