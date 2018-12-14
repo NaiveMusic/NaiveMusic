@@ -33,6 +33,7 @@ class MainController(SheetController, AudioController):
     def setCurTrack(self, trackID):
         self._curTrackID = trackID
         self._curTrack = self.getTrack(trackID)
+        self._curPos = 0
 
     def setTrackInst(self, trackID, inst):
         if inst not in INSTRUMENT:
@@ -40,7 +41,7 @@ class MainController(SheetController, AudioController):
         self.getTrack(trackID).inst = inst
 
     def setTrackVel(self, trackID, vel):
-        if not isinstance(vel, int) or vel < 0 or vel > 127:
+        if not isinstance(vel, int) or vel not in VEL_RANGE:
             raise ValueError('Velocity must be int within 0~127, not {}'.format(vel))
         self.getTrack(trackID).vel = vel
 
