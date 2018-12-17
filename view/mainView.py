@@ -1,16 +1,34 @@
 import sys
-from PyQt5 import QtCore, QtWidgets
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 
-from .trackView import TrackView_Demo
+from .trackView import TrackView, InstrumentView
 from .sheetView import SheetView_Demo
-from controller.mainController import MainController
+#from controller.mainController import MainController
 
 
-class MainWindow():
+class MainWindow(QMainWindow):
     def __init__(self):
+        super().__init__()
+
+
+
+        self.vbox = QVBoxLayout()
+        self.vbox.addWidget(SheetView_Demo())
+        self.vbox.addWidget(InstrumentView())
+        self.vbox.addWidget(TrackView(1))
+
+        self.trackRegion = QWidget(self)
+        self.trackRegion.setGeometry(QRect(100, 100, 1280, 720))
+        self.trackRegion.setLayout(self.vbox)
+        self.setWindowTitle('Naive Music')
+        self.resize(1280, 720)
+
+    def addTrack(self):
         pass
 
-
+'''
 class MainWindow_Demo(QtWidgets.QMainWindow):
     def __init__(self):
         QtWidgets.QMainWindow.__init__(self)
@@ -128,3 +146,5 @@ class MainWindow_Demo(QtWidgets.QMainWindow):
         text = self.sheet.toPlainText()
         self.mc.curTrack.demoNotes = text
         self.trackViews[self.mc.curTrackID].trackShow.setText(text)
+'''
+
