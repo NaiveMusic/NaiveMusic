@@ -1,6 +1,6 @@
 from .note import Note
 from .const import *
-from mido import Message, MidiFile, MidiTrack, bpm2tempo, MetaMessage
+from lib.mido import Message, MidiFile, MidiTrack, bpm2tempo, MetaMessage
 
 
 class Track():
@@ -81,5 +81,5 @@ class Track():
         if save:
             mid = MidiFile()
             mid.tracks.append(track)
-            mid.save('fluidsynth/tmp.mid')
+            mid.save('lib/fluidsynth/tmp.mid')
         return track

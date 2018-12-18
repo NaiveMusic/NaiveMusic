@@ -1,11 +1,11 @@
 import sys
 from PyQt5 import QtCore, QtWidgets
 
-from .trackView import TrackView_Demo
-from .sheetView import SheetView_Demo
+from .trackView import TrackView
+from .sheetView import SheetView
 from controller.mainController import MainController
 
 
-class MainView():
+class MainView(QtWidgets.QMainWindow):
     def __init__(self):
-        pass
+        super().__init__()

@@ -7,4 +7,4 @@ from controller.mainController import MainController
 
 class SheetView_Demo(QtWidgets.QPlainTextEdit):
     def __init__(self):
-        QtWidgets.QPlainTextEdit.__init__(self)
+        super().__init__()

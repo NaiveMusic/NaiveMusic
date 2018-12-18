@@ -10,7 +10,7 @@ from controller.mainController import MainController
 
 class MainView_Demo(QtWidgets.QMainWindow):
     def __init__(self):
-        QtWidgets.QMainWindow.__init__(self)
+        super().__init__()
         self.setWindowTitle('Demo2')
         self.resize(800, 600)
         self.mc = MainController()

@@ -6,4 +6,4 @@ from controller.mainController import MainController
 
 class TrackView(QtWidgets.QWidget):
     def __init__(self):
-        pass
+        super().__init__()

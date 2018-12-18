@@ -1,5 +1,5 @@
 from model.track import Track
-from mido import Message, MidiFile, MidiTrack, bpm2tempo, MetaMessage
+from lib.mido import Message, MidiFile, MidiTrack, bpm2tempo, MetaMessage
 
 class File():
     def __init__(self, bpm):
@@ -22,4 +22,4 @@ class File():
         for i, track in enumerate(self.tracks.values()):
             midiTrack = track.toMidi(bpm=self.bpm, channel=i, save=False)
             mid.tracks.append(midiTrack)
-        mid.save('fluidsynth/tmp.mid')
+        mid.save('lib/fluidsynth/tmp.mid')

@@ -6,10 +6,10 @@ from model.track import Track
 from model.const import *
 from controller.audioController import AudioController
 from controller.sheetController import SheetController
-from mido import Message, MidiFile, MidiTrack, bpm2tempo, MetaMessage
+from lib.mido import Message, MidiFile, MidiTrack, bpm2tempo, MetaMessage
 
 
-class MainController(SheetController, AudioController):
+class MainController(SheetController,AudioController):
     def __init__(self):
         SheetController.__init__(self)
         AudioController.__init__(self)

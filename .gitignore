@@ -17,3 +17,6 @@ tmp.mid
 
 # .h file
 *.h
+
+# .DS_Store
+.DS_Store

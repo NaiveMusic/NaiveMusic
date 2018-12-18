@@ -6,7 +6,7 @@ from controller.mainController import MainController
 
 class TrackView_Demo(QtWidgets.QWidget):
     def __init__(self, mc, trackID):
-        QtWidgets.QWidget.__init__(self)
+        super().__init__()
         self.layout = QtWidgets.QHBoxLayout()
         self.setLayout(self.layout)
         self.mc = mc
