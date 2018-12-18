@@ -34,22 +34,22 @@ class Track():
         poped = self.notes.pop(noteID)
         del poped
 
-    def search(self, keys=KEY_RANGE, on, off):
-    """ Search for all notes satisfying that
-        1) note.key is in keys;
-        2) the interval [note.on, note.off) has non-empty intersection with [on,off).
-        Return a list of noteID
+    def search(self, on, off, keys=KEY_RANGE):
+        """ Search for all notes satisfying that
+            1) note.key is in keys;
+            2) the interval [note.on, note.off) has non-empty intersection with [on,off).
+            Return a list of noteID
 
-    Args:
-        keys (<list>int): the range of 'key' property. Defaults to all keys.
-        on (int): the start time of the interval.
-        off(int): the end time of the interval.
+        Args:
+            keys (<list>int): the range of 'key' property. Defaults to all keys.
+            on (int): the start time of the interval.
+            off(int): the end time of the interval.
 
-    P.S. we don't search on 'vel' property because it is not characteristic.
-    """
+        P.S. we don't search on 'vel' property because it is not characteristic.
+        """
         resultList = []
         for noteID,note in self.notes:
-            if (note.key in keys && self.__intersect(on, off, note.on, note.off)):
+            if (note.key in keys and self.__intersect(on, off, note.on, note.off)):
                  resultList.append(noteID)
         return resultList
 
