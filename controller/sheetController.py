@@ -17,6 +17,8 @@ class SheetController():
     def getCurTrackID(self):
         return self._curTrackID
     
+    def getCurTrack(self):
+        return self._curTrack
 
     def addNote(self, key, **options):
         """ Add Note(key,vel,on,off) to curTrack.

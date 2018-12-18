@@ -104,7 +104,7 @@ class MainWindow_Demo(QtWidgets.QMainWindow):
         trackID = button.objectName()
         trackID = int(trackID.split()[1])
         self.mc.setCurTrack(trackID)
-        self.sheet.setPlainText(self.mc.curTrack.demoNotes)
+        self.sheet.setPlainText(self.mc.getCurTrack().demoNotes)
 
     # 删除track
     def delTrack(self, button):
@@ -126,5 +126,5 @@ class MainWindow_Demo(QtWidgets.QMainWindow):
     # 更新track的text
     def updateTrack(self):
         text = self.sheet.toPlainText()
-        self.mc.curTrack.demoNotes = text
-        self.trackViews[self.mc.curTrackID].trackShow.setText(text)
+        self.mc.getCurTrack().demoNotes = text
+        self.trackViews[self.mc.getCurTrackID()].trackShow.setText(text)

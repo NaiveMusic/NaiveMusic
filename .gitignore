@@ -7,8 +7,13 @@ bak/
 
 # test file
 test.py
-
+test.cpp
 
 # tmp mid file
 tmp.mid
 
+# VScode config dir
+.vscode/
+
+# .h file
+*.h
