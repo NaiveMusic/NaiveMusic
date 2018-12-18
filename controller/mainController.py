@@ -14,6 +14,7 @@ class MainController(SheetController, AudioController):
         SheetController.__init__(self)
         AudioController.__init__(self)
         self._curFile = File(bpm=120)
+        self.curView = None
 
     # Track part
     def getTrack(self, trackID):
@@ -34,6 +35,7 @@ class MainController(SheetController, AudioController):
         self._curTrackID = trackID
         self._curTrack = self.getTrack(trackID)
         self._curPos = 0
+        self.curView.update()
 
     def setTrackInst(self, trackID, inst):
         if inst not in INSTRUMENT:
@@ -54,6 +56,7 @@ class MainController(SheetController, AudioController):
         if trackID not in self._curFile.tracks:
             raise ValueError('Track ID {} not found when del'.format(trackID))
         self._curFile.delTrack(trackID)
+        self.curView.update()
 
     # File part
     def setBPM(self, bpm):

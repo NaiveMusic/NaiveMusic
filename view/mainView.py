@@ -17,6 +17,7 @@ class MainWindow_Demo(QtWidgets.QMainWindow):
         self.setWindowTitle('Demo2')
         self.resize(800, 600)
         self.mc = MainController()
+        self.mc.curView = self
 
         # 居中显示
         self.widget = QtWidgets.QWidget(self)
@@ -65,31 +66,35 @@ class MainWindow_Demo(QtWidgets.QMainWindow):
 
         # 添加音轨view
         self.trackViews = {}
-        self.switchButtons = QtWidgets.QButtonGroup()
-        self.switchButtons.buttonClicked.connect(self.switchTrack)
-
-        self.deleteButtons = QtWidgets.QButtonGroup()
-        self.deleteButtons.buttonClicked.connect(self.delTrack)
         self.addTrack()
+
+    # view不要自己调用update！
+    def update(self):
+        # sheetview update
+        self.sheet.setPlainText(self.mc.getCurTrack().demoNotes)
+
+        # trackView update
+        for view in self.trackViews.values():
+            self.grid.removeWidget(view)
+
+        # filiter deleted tracks
+        self.trackViews = {
+            i: self.trackViews[i]
+            for i in self.trackViews
+            if isinstance(self.trackViews[i], TrackView_Demo) and self.trackViews[i].deleted == False
+        }
+
+        for i, view in enumerate(self.trackViews.values()):  # may not stable, sort needed
+            self.grid.addWidget(view, i + 2, 0, 1, 6)
 
     # 添加track
     def addTrack(self):
         trackID = self.mc.addTrack(inst=0, vel=100)
         print('track {} added'.format(trackID))
-
-        curTrackNum = self.mc.getTrackNum()
         trackView = TrackView_Demo(self.mc, trackID)
-
         self.trackViews[trackID] = trackView
-        self.switchButtons.addButton(trackView.trackSwitch)
-        self.deleteButtons.addButton(trackView.trackDel)
-
         trackView.trackVel.valueChanged.connect(self.lcd.display)
-
         self.mc.setCurTrack(trackID)
-
-        self.grid.addWidget(trackView, curTrackNum + 2, 0, 1, 6)
-        self.switchTrack(trackView.trackSwitch)
 
     # 设置bpm
     def setBPM(self):
@@ -98,30 +103,6 @@ class MainWindow_Demo(QtWidgets.QMainWindow):
     # 全局播放
     def playAll(self):
         self.mc.playAll()
-
-    # 切换track
-    def switchTrack(self, button):
-        trackID = button.objectName()
-        trackID = int(trackID.split()[1])
-        self.mc.setCurTrack(trackID)
-        self.sheet.setPlainText(self.mc.getCurTrack().demoNotes)
-
-    # 删除track
-    def delTrack(self, button):
-        trackID = button.objectName()
-        trackID = int(trackID.split()[1])
-        print('track {} deleted'.format(trackID))
-
-        for view in self.trackViews.values():
-            self.grid.removeWidget(view)
-        trackView = self.trackViews.pop(trackID)
-        for i, view in enumerate(self.trackViews.values()):  # may not stable
-            self.grid.addWidget(view, i + 2, 0, 1, 6)
-
-        self.switchButtons.removeButton(trackView.trackSwitch)
-        self.deleteButtons.removeButton(trackView.trackDel)
-        trackView.delTrack()
-        self.mc.delTrack(trackID)
 
     # 更新track的text
     def updateTrack(self):

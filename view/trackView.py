@@ -16,6 +16,7 @@ class TrackView_Demo(QtWidgets.QWidget):
         self.setLayout(self.layout)
         self.mc = mc
         self.trackID = trackID
+        self.deleted = False
 
         # 单轨播放
         self.trackPlay = QtWidgets.QPushButton()
@@ -30,7 +31,8 @@ class TrackView_Demo(QtWidgets.QWidget):
         # 切换到当前track
         self.trackSwitch = QtWidgets.QPushButton()
         self.trackSwitch.setText('Switch to {}'.format(self.trackID))
-        self.trackSwitch.setObjectName('switch ' + str(self.trackID))
+        # self.trackSwitch.setObjectName('switch ' + str(self.trackID))
+        self.trackSwitch.clicked.connect(self.switchTrack)
         self.layout.addWidget(self.trackSwitch)
 
         # 选择乐器
@@ -49,20 +51,24 @@ class TrackView_Demo(QtWidgets.QWidget):
         # 删除音轨
         self.trackDel = QtWidgets.QPushButton()
         self.trackDel.setText('Del Track')
-        self.trackDel.setObjectName('del ' + str(self.trackID))
-        # self.trackDel.clicked.connect(self.delTrack)
+        # self.trackDel.setObjectName('del ' + str(self.trackID))
+        self.trackDel.clicked.connect(self.delTrack)
         self.layout.addWidget(self.trackDel)
+
+    def switchTrack(self):
+        self.mc.setCurTrack(self.trackID)
+
+    def delTrack(self):
+        self.deleted = True
+        self.deleteLater()
+        self.mc.delTrack(self.trackID)
 
     # 单轨播放
     def playTrack(self):
         self.mc.playTrack(self.trackID)
 
     def changeInst(self):
-        self.mc.setTrackInst(self.trackID,self.trackInst.currentIndex())
+        self.mc.setTrackInst(self.trackID, self.trackInst.currentIndex())
 
     def changeVel(self):
-        self.mc.setTrackVel(self.trackID,self.trackVel.value())
-
-    def delTrack(self):
-        self.hide()
-        self.deleteLater()
+        self.mc.setTrackVel(self.trackID, self.trackVel.value())
