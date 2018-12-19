@@ -66,6 +66,13 @@ class SheetController():
             self._curTrack.delNote(noteID)        
         self._curPos = on
 
+    def isOccupied(self, key, on, off):
+        if len(self.getNotesInfo(keys=[key],on=on,off=off)) > 0:
+            return True
+        else:
+            return False
+
+
     def setCurPosition(self, curPos):
         """ Set current (time) position to a new one.
 
