@@ -7,4 +7,17 @@ bak/
 
 # test file
 test.py
+test.cpp
+test.c
 
+# tmp mid file
+tmp.mid
+
+# VScode config dir
+.vscode/
+
+# .h file
+*.h
+
+# .DS_Store
+.DS_Store

@@ -199,3 +199,4 @@ class MainWindow_Demo(QtWidgets.QMainWindow):
         self.trackViews[self.mc.curTrackID].trackShow.setText(text)
 '''
 
+

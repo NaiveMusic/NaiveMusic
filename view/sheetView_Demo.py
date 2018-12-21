@@ -5,6 +5,6 @@ from model.const import *
 from controller.mainController import MainController
 
 
-class SheetView(QtWidgets.QWidget):
+class SheetView_Demo(QtWidgets.QPlainTextEdit):
     def __init__(self):
         super().__init__()

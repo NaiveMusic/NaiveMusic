@@ -3,17 +3,33 @@ class Note():
     def __init__(self, key, vel, on, off):
         self.setAll(key, vel, on, off)
 
+    @property
+    def on(self):
+        return self.__on
+
+    @property
+    def off(self):
+        return self.__off
+
+    @property
+    def key(self):
+        return self.__key
+    
+    @property
+    def vel(self):
+        return self.__vel
+        
     def getInfo(self):
         '''Return note key, velocity, start time and stop time'''
         return self.__key, self.__vel, self.__on, self.__off
 
     def setKey(self, key):
-        if not isinstance(key, int) or key < 0 or key > 127:
+        if key not in KEY_RANGE:
             raise ValueError('Key must be int within 0~127')
         self.__key = key
 
     def setVel(self, vel):
-        if not isinstance(vel, int) or vel < 0 or vel > 127:
+        if vel not in VEL_RANGE:
             raise ValueError('Velocity must be int within 0~127')
         self.__vel = vel
 
