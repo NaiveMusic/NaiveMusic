@@ -78,6 +78,7 @@ class MainController(SheetController, AudioController):
     # Play part
     def playAll(self):
         if self.changed:
+            self.length = self._curFile.toMidi()
             self.changed = False
             self._play(self._curFile.buf, self.length, True)
         else:
