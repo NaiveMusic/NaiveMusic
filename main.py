@@ -1,8 +1,10 @@
 import sys
-from view.mainView import MainView
-from PyQt5 import QtWidgets
+from view.mainView import MainWindow
+from PyQt5.QtCore import *
+from PyQt5.QtWidgets import *
+from PyQt5.QtGui import *
 
-app = QtWidgets.QApplication(sys.argv)
-window = MainView()
+app = QApplication(sys.argv)
+window = MainWindow()
 window.show()
 sys.exit(app.exec_())
