@@ -9,7 +9,7 @@ from controller.sheetController import SheetController
 from lib.mido import Message, MidiFile, MidiTrack, bpm2tempo, MetaMessage
 
 
-class MainController(SheetController,AudioController):
+class MainController(SheetController, AudioController):
     def __init__(self):
         SheetController.__init__(self)
         AudioController.__init__(self)
@@ -77,9 +77,13 @@ class MainController(SheetController,AudioController):
 
     # Play part
     def playAll(self):
-        self._curFile.toMidi()
-        self._play()
+        length = self._curFile.toMidi()
+        self._play(self._curFile.buf, length)
 
     def playTrack(self, trackID):
-        self.getTrack(trackID).toMidi(self.getBPM())
-        self._play()
+        length = self.getTrack(trackID).toMidi(self.getBPM())
+        self._play(self._curFile.buf, length)
+
+
+
+        

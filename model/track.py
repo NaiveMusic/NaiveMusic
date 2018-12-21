@@ -1,3 +1,5 @@
+from io import BytesIO
+
 from .note import Note
 from .const import *
 from lib.mido import Message, MidiFile, MidiTrack, bpm2tempo, MetaMessage
@@ -48,18 +50,18 @@ class Track():
         P.S. we don't search on 'vel' property because it is not characteristic.
         """
         resultList = []
-        for noteID,note in self.notes:
+        for noteID, note in self.notes:
             if (note.key in keys and self.__intersect(on, off, note.on, note.off)):
-                 resultList.append(noteID)
+                resultList.append(noteID)
         return resultList
 
     def __intersect(self, on1, off1, on2, off2):
         """ Return boolen value for the condition
             whether interval [on1,off1) intersects with [on2,off2)
         """
-        if max(on1,off1) <= on2:
+        if max(on1, off1) <= on2:
             return False
-        if min(on1,off1) >= off2:
+        if min(on1, off1) >= off2:
             return False
         return True
 
@@ -79,7 +81,9 @@ class Track():
                 track.append(Message('note_on', channel=channel, note=pitch[note], velocity=100, time=0))
                 track.append(Message('note_off', channel=channel, note=pitch[note], velocity=100, time=192))
         if save:
+            self.buf = BytesIO()
             mid = MidiFile()
             mid.tracks.append(track)
-            mid.save('lib/fluidsynth/tmp.mid')
+            mid.save(file=self.buf)
+            return mid.length
         return track

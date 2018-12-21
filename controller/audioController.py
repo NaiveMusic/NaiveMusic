@@ -1,7 +1,10 @@
 import os
 import subprocess
+import numpy as np
 from ctypes import *
 from ctypes.util import find_library
+
+from lib.pyaudio import pyaudio
 
 
 class AudioController():
@@ -10,88 +13,130 @@ class AudioController():
         if os.sys.platform.startswith('win'):
             lib = find_library('libfluidsynth-2.dll')
         elif os.sys.platform.startswith('linux'):
-            raise NotImplementedError('TODO for tomorrow')
+            raise NotImplementedError('TODO')
         elif os.sys.platform.startswith('darwin'):
             raise NotImplementedError('TODO for wu tong xue')
         if lib is None:
             raise ImportError("Couldn't find the FluidSynth library.")
+
         self._fl = CDLL(lib)
-        self._defFuncs()
+        self._initFuncs()
         self.settings = self.new_fluid_settings()
+        self.fluid_settings_setstr(self.settings, b"player.timing-source", b"sample")
+        self.fluid_settings_setint(self.settings, b"synth.lock-memory", 0)
         self.synth = self.new_fluid_synth(self.settings)
-        self.adriver = self.new_fluid_audio_driver(self.settings, self.synth)
+        # self.adriver = self.new_fluid_audio_driver(self.settings, self.synth)
         self.fluid_synth_sfload(self.synth, b"GeneralUser_GS.sf2", 1)
         os.chdir('../..')
 
+        pa = pyaudio.PyAudio()
+        self.strm = pa.open(format=pyaudio.paInt16, channels=2, rate=44100, output=True)
+        
     def __del__(self):
-        self.delete_fluid_audio_driver(self.adriver)
+        # self.delete_fluid_audio_driver(self.adriver)
         self.delete_fluid_synth(self.synth)
         self.delete_fluid_settings(self.settings)
 
-    def _play(self):
-        self.player = self.new_fluid_player(self.synth)
-        self.fluid_player_add(self.player, b"lib\\fluidsynth\\tmp.mid")
-        self.fluid_player_play(self.player)
-        self.fluid_player_join(self.player)
-        self.delete_fluid_player(self.player)
+    def _play(self, buf, length):
+        # self.player = self.new_fluid_player(self.synth)
+        # self.fluid_player_add(self.player, b"lib\\fluidsynth\\tmp.mid")
+        # self.fluid_player_play(self.player)
+        # self.fluid_player_join(self.player)
+        # self.delete_fluid_player(self.player)
+        buf.seek(0)
+        buf = buf.read()
 
-    def cfunc(self, name, result, *args):
+        player = self.new_fluid_player(self.synth)
+        self.fluid_player_add_mem(player, buf, len(buf))
+        self.fluid_player_play(player)
+
+        length = int(44100 * length)
+        buf = create_string_buffer(length * 4)
+        self.fluid_synth_write_s16(self.synth, length, buf, 0, 2, buf, 1, 2)
+        a = np.frombuffer(buf, dtype=np.int16).tostring()
+
+        
+        self.strm.write(a)
+
+        self.fluid_player_stop(player)
+        self.fluid_player_join(player)
+        self.delete_fluid_player(player)
+
+    def _cfunc(self, name, result, *args):
         atypes, aflags = [], []
         for arg in args:
             atypes.append(arg[1])
             aflags.append((arg[2], arg[0]) + arg[3:])
         return CFUNCTYPE(result, *atypes)((name, self._fl), tuple(aflags))
 
-    def _defFuncs(self):
+    def _initFuncs(self):
         #settings
-        self.new_fluid_settings = self.cfunc('new_fluid_settings', c_void_p)
+        self.new_fluid_settings = self._cfunc('new_fluid_settings', c_void_p)
 
-        self.fluid_settings_setstr = self.cfunc('fluid_settings_setstr', c_int,\
-                                    ('settings', c_void_p, 1),\
-                                    ('name', c_char_p, 1),\
-                                    ('str', c_char_p, 1))
+        self.fluid_settings_setstr = self._cfunc('fluid_settings_setstr', c_int,\
+                                                ('settings', c_void_p, 1),\
+                                                ('name', c_char_p, 1),\
+                                                ('str', c_char_p, 1))
 
-        self.fluid_settings_setint = self.cfunc('fluid_settings_setint', c_int,\
-                                    ('settings', c_void_p, 1),\
-                                    ('name', c_char_p, 1),\
-                                    ('val', c_int, 1))
+        self.fluid_settings_setint = self._cfunc('fluid_settings_setint', c_int,\
+                                                ('settings', c_void_p, 1),\
+                                                ('name', c_char_p, 1),\
+                                                ('val', c_int, 1))
 
         #new
-        self.new_fluid_synth = self.cfunc('new_fluid_synth', c_void_p,\
-                                ('settings', c_void_p, 1))
+        self.new_fluid_synth = self._cfunc('new_fluid_synth', c_void_p,\
+                                          ('settings', c_void_p, 1))
 
-        self.new_fluid_player = self.cfunc('new_fluid_player',c_void_p,\
-                                ('synth',c_void_p,1))
+        self.new_fluid_player = self._cfunc('new_fluid_player',c_void_p,\
+                                           ('synth',c_void_p,1))
 
-        self.new_fluid_audio_driver = self.cfunc('new_fluid_audio_driver', c_void_p, \
-                                        ('settings', c_void_p, 1),\
-                                        ('synth', c_void_p, 1))
+        self.new_fluid_audio_driver = self._cfunc('new_fluid_audio_driver', c_void_p, \
+                                                 ('settings', c_void_p, 1),\
+                                                 ('synth', c_void_p, 1))
 
-        self.fluid_synth_sfload = self.cfunc('fluid_synth_sfload', c_int,\
-                                ('synth', c_void_p, 1),\
-                                ('filename', c_char_p, 1),\
-                                ('update_midi_presets', c_int, 1))\
+        self.fluid_synth_sfload = self._cfunc('fluid_synth_sfload', c_int,\
+                                             ('synth', c_void_p, 1),\
+                                             ('filename', c_char_p, 1),\
+                                             ('update_midi_presets', c_int, 1))\
 
         #player
-        self.fluid_player_add = self.cfunc('fluid_player_add',c_void_p,\
-                                ('player',c_void_p,1),\
-                                ('midifile',c_char_p,1))
+        self.fluid_player_add = self._cfunc('fluid_player_add',c_void_p,\
+                                           ('player',c_void_p,1),\
+                                           ('midifile',c_char_p,1))
 
-        self.fluid_player_play = self.cfunc('fluid_player_play',c_void_p,\
-                                ('player',c_void_p,1))
+        self.fluid_player_add_mem = self._cfunc('fluid_player_add_mem',c_void_p,\
+                                               ('player',c_void_p,1),\
+                                               ('buffer',c_void_p,1),\
+                                               ('len',c_uint,1))
 
-        self.fluid_player_join = self.cfunc('fluid_player_join',c_void_p,\
-                                ('player',c_void_p,1))
+        self.fluid_player_play = self._cfunc('fluid_player_play',c_void_p,\
+                                            ('player',c_void_p,1))
+
+        self.fluid_player_stop = self._cfunc('fluid_player_stop',c_void_p,\
+                                            ('player',c_void_p,1))
+
+        self.fluid_player_join = self._cfunc('fluid_player_join',c_void_p,\
+                                            ('player',c_void_p,1))
 
         #delete
-        self.delete_fluid_audio_driver = self.cfunc('delete_fluid_audio_driver', None,\
-                                        ('driver', c_void_p, 1))
+        self.delete_fluid_audio_driver = self._cfunc('delete_fluid_audio_driver', None,\
+                                                    ('driver', c_void_p, 1))
 
-        self.delete_fluid_synth = self.cfunc('delete_fluid_synth', None,\
-                                ('synth', c_void_p, 1))
+        self.delete_fluid_synth = self._cfunc('delete_fluid_synth', None,\
+                                             ('synth', c_void_p, 1))
 
-        self.delete_fluid_settings = self.cfunc('delete_fluid_settings', None,\
-                                    ('settings', c_void_p, 1))
+        self.delete_fluid_settings = self._cfunc('delete_fluid_settings', None,\
+                                                ('settings', c_void_p, 1))
 
-        self.delete_fluid_player = self.cfunc('delete_fluid_player',c_void_p,\
-                                ('player',c_void_p,1))
+        self.delete_fluid_player = self._cfunc('delete_fluid_player',c_void_p,\
+                                              ('player',c_void_p,1))
+
+        self.fluid_synth_write_s16 = self._cfunc('fluid_synth_write_s16', c_void_p,\
+                                                ('synth', c_void_p, 1),\
+                                                ('len', c_int, 1),\
+                                                ('lbuf', c_void_p, 1),\
+                                                ('loff', c_int, 1),\
+                                                ('lincr', c_int, 1),\
+                                                ('rbuf', c_void_p, 1),\
+                                                ('roff', c_int, 1),\
+                                                ('rincr', c_int, 1))
