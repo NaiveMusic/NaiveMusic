@@ -9,3 +9,4 @@ from .sheet.NMusicSheet import NMusicSheet as SheetView
 class SheetView_Demo(QtWidgets.QPlainTextEdit):
     def __init__(self):
         QtWidgets.QPlainTextEdit.__init__(self)
+
