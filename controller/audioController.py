@@ -14,7 +14,7 @@ class AudioController():
     def __init__(self):
         os.chdir('./lib/fluidsynth')
         if os.sys.platform.startswith('win'):
-            lib = find_library('libfluidsynth-2.dll')
+            lib = windll.LoadLibrary('./libfluidsynth-2.dll')
         elif os.sys.platform.startswith('linux'):
             raise NotImplementedError('TODO')
         elif os.sys.platform.startswith('darwin'):
@@ -24,7 +24,7 @@ class AudioController():
 
         self.changed = True
 
-        self._fl = CDLL(lib)
+        self._fl = lib
         self._initFuncs()
         self.settings = self.new_fluid_settings()
         self.fluid_settings_setstr(self.settings, b"player.timing-source", b"sample")
