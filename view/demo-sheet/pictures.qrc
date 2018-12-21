@@ -1,0 +1,11 @@
+<RCC>
+  <qresource prefix="global">
+    <file>src/global/logo.png</file>
+  </qresource>
+  <qresource prefix="sheet">
+    <file>src/sheet/checked.png</file>
+    <file>src/sheet/checked_hover.png</file>
+    <file>src/sheet/noCheck.png</file>
+    <file>src/sheet/noCheck_hover.png</file>
+  </qresource>
+</RCC>
