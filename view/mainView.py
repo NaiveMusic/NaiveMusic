@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from .trackView import TrackView, InstrumentView
-from .sheetView import SheetView_Demo
+from .sheetView_Demo import SheetView_Demo
 from controller.mainController import MainController
 
 
@@ -55,7 +55,7 @@ class MainWindow(QMainWindow):
         self.mc = MainController()
         self.tracklist = []
         for i in range(2):
-            trackID = self.mc.curFile.addTrack(inst=0, vel=100)
+            trackID = self.mc.addTrack(inst=0, vel=100)
             self.tracklist.append(TrackView(self.mc, trackID, self.sheet))
 
     def playTrack(self):
