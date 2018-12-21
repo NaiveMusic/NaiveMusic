@@ -83,10 +83,7 @@ class AudioController():
             wf.setparams((2, 2, 44100, 0, 'NONE', 'NONE'))
             wf.writeframes(sample)
         buf.seek(0)
-        self.wf = wave.open("C:/Windows/media/Ring05.wav", 'rb')
-        print(self.wf.getparams())
         self.wf = wave.open(buf, 'rb')
-        print(self.wf.getparams())
 
         return sample
 
