@@ -25,7 +25,7 @@ class MainView_Demo(QtWidgets.QMainWindow):
         # Sheet
         self.sheet = SheetView_Demo()
         self.sheet.textChanged.connect(self.updateTrack)
-        self.grid.addWidget(self.sheet, 0, 0, 1, 6)
+        self.grid.addWidget(self.sheet, 0, 0, 1, 7)
 
         # 全局播放
         self.play = QtWidgets.QPushButton()
@@ -33,33 +33,40 @@ class MainView_Demo(QtWidgets.QMainWindow):
         self.play.clicked.connect(self.playAll)
         self.grid.addWidget(self.play, 1, 0)
 
+        # 播放停止
+        self.stop = QtWidgets.QPushButton()
+        self.stop.setText('Pause')
+        self.stop.clicked.connect(self.stopAll)
+        self.grid.addWidget(self.stop, 1, 1)
+        
+
         # bpm label
         self.label = QtWidgets.QLabel('BPM')
         self.label.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        self.grid.addWidget(self.label, 1, 1)
+        self.grid.addWidget(self.label, 1, 2)
 
         # bpm
         self.bpm = QtWidgets.QSpinBox()
         self.bpm.setMaximum(200)
         self.bpm.setValue(120)
         self.bpm.valueChanged.connect(self.setBPM)
-        self.grid.addWidget(self.bpm, 1, 2)
+        self.grid.addWidget(self.bpm, 1, 3)
 
         # vel label
         self.label2 = QtWidgets.QLabel('Vel')
         self.label2.setAlignment(QtCore.Qt.AlignRight | QtCore.Qt.AlignVCenter)
-        self.grid.addWidget(self.label2, 1, 3)
+        self.grid.addWidget(self.label2, 1, 4)
 
         # 显示音量
         self.lcd = QtWidgets.QLCDNumber()
         self.lcd.display('100')
-        self.grid.addWidget(self.lcd, 1, 4)
+        self.grid.addWidget(self.lcd, 1, 5)
 
         # '添加音轨'按钮
         self.trackAdd = QtWidgets.QPushButton()
         self.trackAdd.setText('Add Track')
         self.trackAdd.clicked.connect(self.addTrack)
-        self.grid.addWidget(self.trackAdd, 1, 5)
+        self.grid.addWidget(self.trackAdd, 1, 6)
 
         # 添加音轨view
         self.trackViews = {}
@@ -82,7 +89,7 @@ class MainView_Demo(QtWidgets.QMainWindow):
         }
 
         for i, view in enumerate(self.trackViews.values()):  # may not stable, sort needed
-            self.grid.addWidget(view, i + 2, 0, 1, 6)
+            self.grid.addWidget(view, i + 2, 0, 1, 7)
 
     # 添加track
     def addTrack(self):
@@ -101,8 +108,12 @@ class MainView_Demo(QtWidgets.QMainWindow):
     def playAll(self):
         self.mc.playAll()
 
+    def stopAll(self):
+        self.mc.stopAll()
+
     # 更新track的text
     def updateTrack(self):
         text = self.sheet.toPlainText()
+        self.mc.changed = True
         self.mc.getCurTrack().demoNotes = text
         self.trackViews[self.mc.getCurTrackID()].trackShow.setText(text)
