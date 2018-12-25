@@ -6,8 +6,6 @@ from .sheetView_Demo import SheetView_Demo
 from controller.mainController import MainController
 
 
-
-
 class MainView_Demo(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
@@ -34,11 +32,10 @@ class MainView_Demo(QtWidgets.QMainWindow):
         self.grid.addWidget(self.play, 1, 0)
 
         # 播放停止
-        self.stop = QtWidgets.QPushButton()
-        self.stop.setText('Pause')
-        self.stop.clicked.connect(self.stopAll)
-        self.grid.addWidget(self.stop, 1, 1)
-        
+        self.pause = QtWidgets.QPushButton()
+        self.pause.setText('Pause')
+        self.pause.clicked.connect(self.pauseAll)
+        self.grid.addWidget(self.pause, 1, 1)
 
         # bpm label
         self.label = QtWidgets.QLabel('BPM')
@@ -106,14 +103,13 @@ class MainView_Demo(QtWidgets.QMainWindow):
 
     # 全局播放
     def playAll(self):
-        self.mc.playAll()
+        self.mc.playAllDemo()
 
-    def stopAll(self):
-        self.mc.stopAll()
+    def pauseAll(self):
+        self.mc.pauseAllDemo()
 
     # 更新track的text
     def updateTrack(self):
         text = self.sheet.toPlainText()
-        self.mc.changed = True
         self.mc.getCurTrack().demoNotes = text
         self.trackViews[self.mc.getCurTrackID()].trackShow.setText(text)

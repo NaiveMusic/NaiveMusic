@@ -3,14 +3,16 @@ import subprocess
 import numpy as np
 from ctypes import *
 from ctypes.util import find_library
-import threading
-from lib.pyaudio import pyaudio
-
 import wave
 from io import BytesIO
 import time
 
-class AudioController():
+from lib.pyaudio import pyaudio
+from controller.baseController import BaseController
+from model.const import *
+
+
+class AudioController(BaseController):
     def __init__(self):
         os.chdir('./lib/fluidsynth')
         if os.sys.platform.startswith('win'):
@@ -21,8 +23,6 @@ class AudioController():
             raise NotImplementedError('TODO for wu tong xue')
         if lib is None:
             raise ImportError("Couldn't find the FluidSynth library.")
-
-        self.changed = True
 
         self._fl = lib
         self._initFuncs()
@@ -36,7 +36,6 @@ class AudioController():
         self.pa = pyaudio.PyAudio()
         self.strm = self.pa.open(format=pyaudio.paInt16, channels=2, rate=44100, output=True, start=False,
                                  stream_callback=self._callback)
-        # self.strm = self.pa.open(format=pyaudio.paInt16, channels=2, rate=44100, output=True)
 
     def __del__(self):
         self.delete_fluid_synth(self.synth)
@@ -49,17 +48,19 @@ class AudioController():
         return (data, pyaudio.paContinue)
 
     def _play(self, buf, length, changed=True):
-        if changed:
-            sample = self._getSample(buf, length)
         if self.strm.is_active():
             print('playing!')
             return
+        if self._state != STATE.PAUSING:
+            sample = self._getSample(buf, length)
+        self._state = STATE.PLAYING
+        self.pausing = False
         self.strm.stop_stream()
-        # self.wf.
-        # self.strm.write(sample)
         self.strm.start_stream()
 
-    def _stop(self):
+    def _pause(self):
+        if self.strm.is_active():
+            self._state = STATE.PAUSING
         self.strm.stop_stream()
 
     def _getSample(self, buf, length):

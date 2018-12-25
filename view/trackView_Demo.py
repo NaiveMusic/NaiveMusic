@@ -60,7 +60,7 @@ class TrackView_Demo(QtWidgets.QWidget):
 
     # 单轨播放
     def playTrack(self):
-        self.mc.playTrack(self.trackID)
+        self.mc.playTrackDemo(self.trackID)
 
     def changeInst(self):
         self.mc.setTrackInst(self.trackID, self.trackInst.currentIndex())

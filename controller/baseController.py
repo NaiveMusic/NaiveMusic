@@ -2,7 +2,7 @@ from model.const import *
 
 class BaseController():
 	def __init__(self):
-		self._state = None
+		self._state = STATE.DEFAULT
 		self._observerList = []
 
 	@property

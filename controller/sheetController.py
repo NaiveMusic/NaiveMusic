@@ -91,7 +91,7 @@ class SheetController(BaseController):
             and set the "origin" of selection to (key,on).
             Meanwhile the state of controller is set to 'SELECTING'
         """
-        self._selectedNoteIDList = self._curTrack.search(keys=KEY_RANGE, on, off)
+        self._selectedNoteIDList = self._curTrack.search(on, off)
         self._selectedKey = key
         self._selectedOn = on
         self._selectedOff = off
