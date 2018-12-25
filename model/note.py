@@ -1,3 +1,4 @@
+from .const import *
 
 class Note():
     def __init__(self, key, vel, on, off):
@@ -5,43 +6,43 @@ class Note():
 
     @property
     def on(self):
-        return self.__on
+        return self._on
 
     @property
     def off(self):
-        return self.__off
+        return self._off
 
     @property
     def key(self):
-        return self.__key
+        return self._key
     
     @property
     def vel(self):
-        return self.__vel
+        return self._vel
         
     def getInfo(self):
         '''Return note key, velocity, start time and stop time'''
-        return self.__key, self.__vel, self.__on, self.__off
+        return self._key, self._vel, self._on, self._off
 
     def setKey(self, key):
         if key not in KEY_RANGE:
             raise ValueError('Key must be int within 0~127')
-        self.__key = key
+        self._key = key
 
     def setVel(self, vel):
         if vel not in VEL_RANGE:
             raise ValueError('Velocity must be int within 0~127')
-        self.__vel = vel
+        self._vel = vel
 
     def setOn(self, on):
         if not isinstance(on, int) or on < 0:
             raise ValueError('Note start time must be int no less than 0')
-        self.__on = on
+        self._on = on
 
     def setOff(self, off):
         if not isinstance(off, int) or off < 0:
             raise ValueError('Note stop time must be int no less than 0')
-        self.__off = off
+        self._off = off
 
     def setAll(self, key, vel, on, off):
         if key != None: self.setKey(key)

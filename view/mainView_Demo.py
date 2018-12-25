@@ -11,7 +11,7 @@ class MainView_Demo(QtWidgets.QMainWindow):
         self.setWindowTitle('NaiveMusic_Demo')
         self.resize(800, 600)
         self.mc = MainController()
-        self.mc.setCurView(self)
+        self.mc.register(self)
 
         # 窗口图标
         icon = QtGui.QIcon()

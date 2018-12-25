@@ -51,11 +51,11 @@ class Track():
         """
         resultList = []
         for noteID, note in self.notes:
-            if (note.key in keys and self.__intersect(on, off, note.on, note.off)):
+            if (note.key in keys and self._intersect(on, off, note.on, note.off)):
                 resultList.append(noteID)
         return resultList
 
-    def __intersect(self, on1, off1, on2, off2):
+    def _intersect(self, on1, off1, on2, off2):
         """ Return boolen value for the condition
             whether interval [on1,off1) intersects with [on2,off2)
         """
