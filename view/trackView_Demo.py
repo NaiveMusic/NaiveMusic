@@ -20,8 +20,9 @@ class TrackView_Demo(QtWidgets.QWidget):
         self.layout.addWidget(self.trackPlay)
 
         # 显示框
-        self.trackShow = QtWidgets.QTextBrowser()
-        self.layout.addWidget(self.trackShow)
+        self.trackEditDemo = QtWidgets.QTextEdit()
+        self.trackEditDemo.textChanged.connect(self.updateTrack)
+        self.layout.addWidget(self.trackEditDemo)
 
         # 切换到当前track
         self.trackSwitch = QtWidgets.QPushButton()
@@ -57,6 +58,11 @@ class TrackView_Demo(QtWidgets.QWidget):
         self.deleted = True
         self.deleteLater()
         self.mc.delTrack(self.trackID)
+
+    # 更新track
+    def updateTrack(self):
+        text = self.trackEditDemo.toPlainText()
+        self.mc.getTrack(self.trackID).demoNotes = text
 
     # 单轨播放
     def playTrack(self):

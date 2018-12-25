@@ -115,12 +115,6 @@ class MainView_Demo(QtWidgets.QMainWindow):
     def pauseAll(self):
         self.mc.pauseAllDemo()
 
-    # 更新track的text
-    def updateTrack(self):
-        text = self.sheet.toPlainText()
-        self.mc.getCurTrack().demoNotes = text
-        self.trackViews[self.mc.getCurTrackID()].trackShow.setText(text)
-
     def closeEvent(self, event):
         reply = QtWidgets.QMessageBox.question(
             self, 'Message', "Are you sure to quit?",
