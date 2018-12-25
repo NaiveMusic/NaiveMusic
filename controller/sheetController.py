@@ -3,11 +3,13 @@ from model.note import Note
 from model.file import File
 from model.track import Track
 from model.const import *
+from controller.baseController import BaseController
 import pickle
 
 
-class SheetController():
+class SheetController(BaseController):
     def __init__(self):
+        BaseController.__init__(self)
         self._curTrackID = None
         self._curTrack = None
         self._curPos = 0 # 'curPos' is an assitant parameter to keyboard input.
@@ -32,6 +34,7 @@ class SheetController():
         self._selectedKey = 0
         self._selectedOn = 0
         self._selectedOff = 0
+        self.notify()
 
     def addNote(self, key, **options):
         """ Add Note(key,vel,on,off) to curTrack, and put curPos to 'off'
@@ -92,7 +95,7 @@ class SheetController():
         self._selectedKey = key
         self._selectedOn = on
         self._selectedOff = off
-        self._state = 'SELECTING'
+        self._state = STATE.SELECTING
         self._curPos = on
         pass
 
@@ -100,11 +103,11 @@ class SheetController():
         """ Remove all notes in selection
             and set the state of controller to 'EDITING'
         """
-        if self.state is 'SELECTING':
+        if self._state is STATE.SELECTING:
             self._selectedNoteIDList = []
             self._selectedKey = 0
             self._selectedOn = 0
-            self._state = 'EDITING' # set to DEFAULT
+            self._state = STATE.EDITING
 
     def delSelectedNote(self):
         for noteID in self._selectedNoteIDList:
@@ -116,7 +119,7 @@ class SheetController():
         """ Save a copy for all selected notes to controller.
             Data is recorded as "relative position" to the origin of the region (selectedKey,selectedOn)
         """
-        if self._state is not 'SELECTING':
+        if self._state is not STATE.SELECTING:
             pass
         else:
             self._copiedNoteList = []
