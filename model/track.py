@@ -65,7 +65,11 @@ class Track():
             return False
         return True
 
-    def toMidi(self, bpm, channel=0, save=True):
+    def toMidi(self,bpm,channel=0,save=True):
+        #TODO
+        pass
+
+    def toDemoMidi(self, bpm, channel=0, save=True):
         track = MidiTrack()
         pitch = [58, 60, 62, 64, 65, 67, 69, 71, 72]
 

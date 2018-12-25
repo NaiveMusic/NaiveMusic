@@ -3,14 +3,18 @@ import subprocess
 import numpy as np
 from ctypes import *
 from ctypes.util import find_library
-
+import threading
 from lib.pyaudio import pyaudio
+
+import wave
+from io import BytesIO
+import time
 
 class AudioController():
     def __init__(self):
         os.chdir('./lib/fluidsynth')
         if os.sys.platform.startswith('win'):
-            lib = find_library('libfluidsynth-2.dll')
+            lib = windll.LoadLibrary('./libfluidsynth-2.dll')
         elif os.sys.platform.startswith('linux'):
             raise NotImplementedError('TODO')
         elif os.sys.platform.startswith('darwin'):
@@ -18,30 +22,47 @@ class AudioController():
         if lib is None:
             raise ImportError("Couldn't find the FluidSynth library.")
 
-        self._fl = CDLL(lib)
+        self.changed = True
+
+        self._fl = lib
         self._initFuncs()
         self.settings = self.new_fluid_settings()
         self.fluid_settings_setstr(self.settings, b"player.timing-source", b"sample")
         self.fluid_settings_setint(self.settings, b"synth.lock-memory", 0)
         self.synth = self.new_fluid_synth(self.settings)
-        # self.adriver = self.new_fluid_audio_driver(self.settings, self.synth)
         self.fluid_synth_sfload(self.synth, b"GeneralUser_GS.sf2", 1)
         os.chdir('../..')
 
-        pa = pyaudio.PyAudio()
-        self.strm = pa.open(format=pyaudio.paInt16, channels=2, rate=44100, output=True)
-        
+        self.pa = pyaudio.PyAudio()
+        self.strm = self.pa.open(format=pyaudio.paInt16, channels=2, rate=44100, output=True, start=False,
+                                 stream_callback=self._callback)
+        # self.strm = self.pa.open(format=pyaudio.paInt16, channels=2, rate=44100, output=True)
+
     def __del__(self):
-        # self.delete_fluid_audio_driver(self.adriver)
         self.delete_fluid_synth(self.synth)
         self.delete_fluid_settings(self.settings)
+        self.pa.terminate()
+        self.wf.close()
 
-    def _play(self, buf, length):
-        # self.player = self.new_fluid_player(self.synth)
-        # self.fluid_player_add(self.player, b"lib\\fluidsynth\\tmp.mid")
-        # self.fluid_player_play(self.player)
-        # self.fluid_player_join(self.player)
-        # self.delete_fluid_player(self.player)
+    def _callback(self, in_data, frame_count, time_info, status):
+        data = self.wf.readframes(frame_count)
+        return (data, pyaudio.paContinue)
+
+    def _play(self, buf, length, changed=True):
+        if changed:
+            sample = self._getSample(buf, length)
+        if self.strm.is_active():
+            print('playing!')
+            return
+        self.strm.stop_stream()
+        # self.wf.
+        # self.strm.write(sample)
+        self.strm.start_stream()
+
+    def _stop(self):
+        self.strm.stop_stream()
+
+    def _getSample(self, buf, length):
         buf.seek(0)
         buf = buf.read()
 
@@ -52,14 +73,19 @@ class AudioController():
         length = int(44100 * length)
         buf = create_string_buffer(length * 4)
         self.fluid_synth_write_s16(self.synth, length, buf, 0, 2, buf, 1, 2)
-        a = np.frombuffer(buf, dtype=np.int16).tostring()
-
-        
-        self.strm.write(a)
+        sample = np.frombuffer(buf, dtype=np.int16).tobytes()
 
         self.fluid_player_stop(player)
         self.fluid_player_join(player)
         self.delete_fluid_player(player)
+        buf = BytesIO()
+        with wave.open(buf, 'wb') as wf:
+            wf.setparams((2, 2, 44100, 0, 'NONE', 'NONE'))
+            wf.writeframes(sample)
+        buf.seek(0)
+        self.wf = wave.open(buf, 'rb')
+
+        return sample
 
     def _cfunc(self, name, result, *args):
         atypes, aflags = [], []
