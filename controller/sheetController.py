@@ -6,13 +6,17 @@ from model.const import *
 import pickle
 
 
-#TODO: split some MainController function to here
-# note相关操作
 class SheetController():
     def __init__(self):
         self._curTrackID = None
         self._curTrack = None
         self._curPos = 0 # 'curPos' is an assitant parameter to keyboard input.
+
+        self._selectedNoteIDList = []
+        self._selectedKey = 0
+        self._selectedOn = 0
+        self._selectedOff = 0
+        self._copiedNoteList = []
 
     def getCurTrackID(self):
         return self._curTrackID
@@ -20,9 +24,18 @@ class SheetController():
     def getCurTrack(self):
         return self._curTrack
 
+    def switchTrack(self, trackID, track):
+        self._curTrackID = trackID
+        self._curTrack = track
+        self._curPos = 0
+        self._selectedNoteIDList = []
+        self._selectedKey = 0
+        self._selectedOn = 0
+        self._selectedOff = 0
+
     def addNote(self, key, **options):
-        """ Add Note(key,vel,on,off) to curTrack.
-            Suggest using missing key for default values,
+        """ Add Note(key,vel,on,off) to curTrack, and put curPos to 'off'
+            Suggest using kwarg for default values,
             specifically when in keyboard input.
 
         Args:
@@ -37,19 +50,23 @@ class SheetController():
         vel = options.get('vel', self._curTrack.vel)
         on = options.get('on', self._curPos)
         off = options.get('off', self._curPos+1)
-        self._curTrack.addNote(key, vel, on, off)
-        self._curPos = off
-
-
-    def selectNote(self, on, off, keys=KEY_RANGE):
-        #...UNFINISHED
-        pass
-
+        if not self.isOccupied(key,on,off):
+            try:
+                self._curTrack.addNote(key, vel, on, off)
+            except ValueError:
+                pass
+            else:
+                self._curPos = off
+            finally:
+                pass
+        else:
+            pass
 
     def delNote(self, **options):
         """ Delete all notes satisfying that
             1) note.key is in list of keys;
-            2) the interval [note.on, note.off) has non-empty intersection with [on,off).
+            2) the interval [note.on, note.off) has non-empty intersection with [on,off),
+            and put curPos to 'on'
 
         Keyword Args:
             keys (<list>int): the list of 'key' property. Defaults to KEY_RANGE.
@@ -65,6 +82,64 @@ class SheetController():
         for noteID in delNoteIDList:
             self._curTrack.delNote(noteID)        
         self._curPos = on
+
+    def selectNote(self, key, on, off):
+        """ Put all notes in range [on,off) into selection
+            and set the "origin" of selection to (key,on).
+            Meanwhile the state of controller is set to 'SELECTING'
+        """
+        self._selectedNoteIDList = self._curTrack.search(keys=KEY_RANGE, on, off)
+        self._selectedKey = key
+        self._selectedOn = on
+        self._selectedOff = off
+        self._state = 'SELECTING'
+        self._curPos = on
+        pass
+
+    def unselectNote(self):
+        """ Remove all notes in selection
+            and set the state of controller to 'EDITING'
+        """
+        if self.state is 'SELECTING':
+            self._selectedNoteIDList = []
+            self._selectedKey = 0
+            self._selectedOn = 0
+            self._state = 'EDITING' # set to DEFAULT
+
+    def delSelectedNote(self):
+        for noteID in self._selectedNoteIDList:
+            self._curTrack.delNote(noteID)
+        self._curPos = self._selectedOn
+        self.unselectNote()
+
+    def copySelectedNote(self):
+        """ Save a copy for all selected notes to controller.
+            Data is recorded as "relative position" to the origin of the region (selectedKey,selectedOn)
+        """
+        if self._state is not 'SELECTING':
+            pass
+        else:
+            self._copiedNoteList = []
+            for noteID in self._selectedNoteIDList:
+                note = self._curTrack.getNote(noteID)
+                noteInfo = {}
+                noteInfo['Key'] = note.key - self._selectedKey
+                noteInfo['Velocity'] = note.vel
+                noteInfo['On'] = note.on - self._selectedOn
+                noteInfo['Off'] = note.off - self._selectedOn
+                self._copiedNoteList.append(noteInfo)
+    
+    def pasteSelectedNote(self, key, on):
+        """ Paste all copied notes to a new region originated at (key,on)
+        """
+        for noteInfo in self._copiedNoteList:
+            _key = noteInfo['Key'] + key
+            _vel = noteInfo['Vel']
+            _on = noteInfo['On'] + on
+            _off = noteInfo['Off'] + on
+            self.addNote(key=_key, vel=_vel, on=_on, off=_off)
+        self._curPos = self._selectedOff
+        
 
     def isOccupied(self, key, on, off):
         if len(self.getNotesInfo(keys=[key],on=on,off=off)) > 0:
