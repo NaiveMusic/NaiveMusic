@@ -4,6 +4,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QGuiApplication
 from controller.mainController import MainController
 import view.sheet.pictures_rc
+import sys
 
 
 class SheetView_Demo(QtWidgets.QWidget):
@@ -118,7 +119,7 @@ class SheetView_Demo(QtWidgets.QWidget):
 
         def setNote(row, col):
             noteName = 'Note_' + str(row) + '_' + str(col)
-            self.noteDict[noteName] = NMPushButton()
+            self.noteDict[noteName] = NMPushButton(row, col)
             sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
                                                QtWidgets.QSizePolicy.Minimum)
             sizePolicy.setHorizontalStretch(0)
@@ -225,13 +226,14 @@ class SheetView_Demo(QtWidgets.QWidget):
 
 
 class NMPushButton(QtWidgets.QPushButton):
-    def __init__(self):
+    def __init__(self, row, col):
         super().__init__()
-        self.isDrawing = False
+        self.setAcceptDrops(True)
+        self.row = row
+        self.col = col
 
     # 重载点击事件
     def mousePressEvent(self, QMouseEvent):
-        self.isDrawing = True
         if QMouseEvent.button() == QtCore.Qt.LeftButton:
             self.setChecked(True)
             print(self.objectName() + ': ' +
@@ -241,9 +243,18 @@ class NMPushButton(QtWidgets.QPushButton):
             print(self.objectName() + ': ' +
                   ("on" if self.isChecked() else "off"))
 
-    def mouseReleaseEvent(self, QMouseEvent):
-        self.isDrawing = False
+    def mouseMoveEvent(self, e):
+        if e.buttons() != QtCore.Qt.LeftButton:
+            return
+        mimeData = QtCore.QMimeData()
+        drag = QtGui.QDrag(self)
+        drag.setMimeData(mimeData)
+        dropAction = drag.exec_(QtCore.Qt.MoveAction)
 
-    def enterEvent(self, QMouseEvent):
-        if self.isDrawing:
-            self.setChecked(True)
+    def dragEnterEvent(self, QMouseEvent):
+        QMouseEvent.accept()
+
+    def dropEvent(self, QMouseEvent):
+        QMouseEvent.setDropAction(QtCore.Qt.MoveAction)
+        QMouseEvent.accept()
+        self.setChecked(True)
