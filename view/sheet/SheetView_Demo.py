@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from PyQt5 import QtCore, QtGui, QtWidgets
-from PyQt5.QtGui import QGuiApplication
 from controller.mainController import MainController
 import view.sheet.pictures_rc
 
@@ -12,6 +11,7 @@ class SheetView_Demo(QtWidgets.QWidget):
         self.mc = mc
         self.setupUi(self)
         self.initPianoRoll()
+        self.initSheet()
 
     # PianoRoll
     def initPianoRoll(self):
@@ -28,6 +28,24 @@ class SheetView_Demo(QtWidgets.QWidget):
 
         # Change below
         print(sender.objectName())
+        # Change above
+
+    # Sheet
+    def initSheet(self):
+        for row in range(self.Sheet.rowCount()):
+            for column in range(self.Sheet.columnCount()):
+                if self.Sheet.itemAtPosition(row, column) is not None:
+                    note = self.Sheet.itemAtPosition(row, column).widget()
+                    if isinstance(note, QtWidgets.QPushButton):
+                        note.clicked.connect(self.note_clicked)
+
+    # Sheet点击事件
+    def note_clicked(self):
+        sender = self.sender()
+
+        # Change below
+        print(sender.objectName() + ': ' +
+              ("on" if sender.isChecked() else "off"))
         # Change above
 
     def setupUi(self, MainWindow):
@@ -118,7 +136,7 @@ class SheetView_Demo(QtWidgets.QWidget):
 
         def setNote(row, col):
             noteName = 'Note_' + str(row) + '_' + str(col)
-            self.noteDict[noteName] = NMPushButton()
+            self.noteDict[noteName] = QtWidgets.QPushButton(self)
             sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
                                                QtWidgets.QSizePolicy.Minimum)
             sizePolicy.setHorizontalStretch(0)
@@ -222,28 +240,3 @@ class SheetView_Demo(QtWidgets.QWidget):
             self.measureDict[name].setText(
                 _translate("MainWindow", self.measureDict[name].objectName()))
         self.VelocityLabel.setText(_translate("MainWindow", "Velocity"))
-
-
-class NMPushButton(QtWidgets.QPushButton):
-    def __init__(self):
-        super().__init__()
-        self.isDrawing = False
-
-    # 重载点击事件
-    def mousePressEvent(self, QMouseEvent):
-        self.isDrawing = True
-        if QMouseEvent.button() == QtCore.Qt.LeftButton:
-            self.setChecked(True)
-            print(self.objectName() + ': ' +
-                  ("on" if self.isChecked() else "off"))
-        elif QMouseEvent.button() == QtCore.Qt.RightButton:
-            self.setChecked(False)
-            print(self.objectName() + ': ' +
-                  ("on" if self.isChecked() else "off"))
-
-    def mouseReleaseEvent(self, QMouseEvent):
-        self.isDrawing = False
-
-    def enterEvent(self, QMouseEvent):
-        if self.isDrawing:
-            self.setChecked(True)
