@@ -78,7 +78,7 @@ class MainController(SheetController, AudioController):
     # Play part
     def playAll(self):
         if self.changed:
-            self.length = self._curFile.toMidi()
+            self.length = self._curFile.toDemoMidi()
             self.changed = False
             self._play(self._curFile.buf, self.length, True)
         else:
@@ -89,5 +89,5 @@ class MainController(SheetController, AudioController):
         self._stop()
 
     def playTrack(self, trackID):
-        length = self.getTrack(trackID).toMidi(self.getBPM())
+        length = self.getTrack(trackID).toDemoMidi(self.getBPM())
         self._play(self._curFile.buf, length)
