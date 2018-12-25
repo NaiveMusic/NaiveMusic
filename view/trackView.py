@@ -69,7 +69,7 @@ class TrackView(QWidget):
     def initTrackUI(self):
         self.track = QPushButton('track', self)
         self.track.setMinimumSize(1160, 120)
-        # self.track.clicked.connect(self.playTrack)
+        self.track.clicked.connect(self.selectTrack)
 
 
     # 轨道乐器图标
@@ -80,13 +80,25 @@ class TrackView(QWidget):
         self.instrumentButton.setIcon(QIcon('view/Icons/instrument/default.svg'))
 
     def bindInstrument(self, icon, instID):
+        '''
+            Set the instrument of track
+
+            Args: 
+                icon, QICON type, icon of the instrument
+                instID, int type, id of the instrument
+
+        '''
+
         self.instrumentButton.setIcon(icon)
         self.trackController.curFile.getTrack(self.trackID).setInst(instID)
         
 
-    # 音量图标界面初始化函数
+
     def initVolumeUI(self):
-        # 音量按钮，点击效果静音，随着音量的变化，图标进行变化
+        '''
+            Volume UI initialization, including a volume icon and a slider
+
+        '''
         self.volume = QPushButton('', self)
         self.volume.setMinimumSize(30, 30)
         self.volume.setIcon(QIcon('view/Icons/volume/midVolume.svg'))
@@ -101,11 +113,19 @@ class TrackView(QWidget):
         self.vAdjuster.valueChanged[int].connect(self.changeValue)
 
 
-    # 音量滑动条连接函数         
+  
     def changeValue(self, value):
+        '''
+            Update the volume of track
 
+            Args: value, float type, gained from slider, no need to set manually
+
+        '''       
+        # change track volume, updated by trackController 
         self.value = value
-        self.trackController.curFile.getTrack(self.trackID).setVel(self.value)
+        self.trackController.setTrackVel(self.trackID, self.value)
+
+        # UI interaction effect, allow volume icon change dynamically
         if value == 0:
             self.volume.setIcon(QIcon('view/Icons/volume/zeroVolume.svg'))
             self.currentVIcon = QIcon('view/Icons/volume/zeroVolume.svg')
@@ -119,86 +139,39 @@ class TrackView(QWidget):
             self.volume.setIcon(QIcon('view/Icons/volume/maxVolume.svg'))
             self.currentVIcon = QIcon('view/Icons/volume/maxVolume.svg')
 
-    # 音轨静音效果
+
     def muteTrack(self):
-        # 
-        if self.isMute: 
+        '''
+            Mute track, different from directly set the volume of track to zero
+
+            that previous volume of the track can be restored
+        
+        '''
+        if self.isMute: # is to mute
             self.volume.setIcon(QIcon('view/Icons/volume/mute.svg'))
             self.value = 0
             self.isMute = False
-        else:
+
+        else: # restore previous track volume
             self.volume.setIcon(self.currentVIcon)
             self.value = self.vAdjuster.value()
             self.isMute = True
 
-        self.trackController.curFile.getTrack(self.trackID).setVel(self.value)
+        self.trackController.setTrackVel(self.trackID, self.value) # update volume
 
 
     def selectTrack(self):
+        '''
+            In mainview, set the current track editable
+
+        '''
         self.trackController.setCurTrack(self.trackID)
         self.sheet.setPlainText(self.trackController.curTrack.demoNotes)
 
     def deleteTrack(self):
-        # 删除音轨暂时不需要实现
+        ''''
+            Delete a track
+
+        '''
         pass
 
-'''
-
-class TrackView_Demo(QtWidgets.QWidget):
-    def __init__(self, mc, trackID):
-        QtWidgets.QWidget.__init__(self)
-        self.layout = QtWidgets.QHBoxLayout()
-        self.setLayout(self.layout)
-        self.mc = mc
-        self.trackID = trackID
-
-        # 单轨播放
-        self.trackPlay = QtWidgets.QPushButton()
-        self.trackPlay.setText('Play')
-        self.trackPlay.clicked.connect(self.playTrack)
-        self.layout.addWidget(self.trackPlay)
-
-        # 显示框
-        self.trackShow = QtWidgets.QTextBrowser()
-        self.layout.addWidget(self.trackShow)
-
-        # 切换到当前track
-        self.trackSwitch = QtWidgets.QPushButton()
-        self.trackSwitch.setText('Switch to {}'.format(self.trackID))
-        self.trackSwitch.setObjectName('switch ' + str(self.trackID))
-        self.layout.addWidget(self.trackSwitch)
-
-        # 选择乐器
-        self.trackInst = QtWidgets.QComboBox()
-        self.trackInst.addItems(['{} {}'.format(i, INSTRUMENT[i]) for i in INSTRUMENT])
-        self.trackInst.currentIndexChanged.connect(self.changeInst)
-        self.layout.addWidget(self.trackInst)
-
-        # 调节音量
-        self.trackVel = QtWidgets.QSlider(QtCore.Qt.Vertical)
-        self.trackVel.setMaximum(127)
-        self.trackVel.setValue(100)
-        self.trackVel.valueChanged.connect(self.changeVel)
-        self.layout.addWidget(self.trackVel)
-
-        # 删除音轨
-        self.trackDel = QtWidgets.QPushButton()
-        self.trackDel.setText('Del Track')
-        self.trackDel.setObjectName('del ' + str(self.trackID))
-        # self.trackDel.clicked.connect(self.delTrack)
-        self.layout.addWidget(self.trackDel)
-
-    # 单轨播放
-    def playTrack(self):
-        self.mc.playTrack(self.trackID)
-
-    def changeInst(self):
-        self.mc.curFile.getTrack(self.trackID).setInst(self.trackInst.currentIndex())
-
-    def changeVel(self):
-        self.mc.curFile.getTrack(self.trackID).setVel(self.trackVel.value())
-
-    def delTrack(self):
-        self.hide()
-        self.deleteLater()
-'''
