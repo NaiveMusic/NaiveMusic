@@ -1,8 +1,7 @@
 from PyQt5 import QtGui, QtCore, QtWidgets
 
 from .trackView_Demo import TrackView_Demo
-# from .sheetView_Demo import SheetView_Demo
-from view.sheet.SheetView_Demo import SheetView_Demo
+from .sheetView_Demo import SheetView_Demo
 from controller.mainController import MainController
 
 
