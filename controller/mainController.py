@@ -36,9 +36,7 @@ class MainController(SheetController, AudioController):
         return self.getTrack(trackID).vel
 
     def setCurTrack(self, trackID):
-        self._curTrackID = trackID
-        self._curTrack = self.getTrack(trackID)
-        self._curPos = 0
+        self.switchTrack(trackID, self.getTrack(trackID))
         self._curView.update()
 
     def setTrackInst(self, trackID, inst):
