@@ -65,9 +65,36 @@ class Track():
             return False
         return True
 
-    def toMidi(self,bpm,channel=0,save=True):
-        #TODO
-        pass
+    def toMidi(self, bpm, channel=0, save=True):
+        track = MidiTrack()
+        track.append(Message('program_change', channel=channel, program=self.inst, time=0))
+        # change track vel
+        track.append(Message('control_change', channel=channel, control=7, value=self.vel, time=0))
+        track.append(MetaMessage('set_tempo', tempo=bpm2tempo(bpm)))
+
+        notes = []
+        for note in self.notes:
+            notes.append({'time': note.on, 'type': 'on', 'key': note.key, 'vel': note.vel})
+            notes.append({'time': note.off, 'type': 'off', 'key': note.key, 'vel': note.vel})
+        notes.sort(key=lambda x: x['time'])
+        last = 0
+        for note in notes:
+            if note['type'] == 'on':
+                track.append(
+                    Message('note_on', channel=channel, note=note['key'], velocity=note['vel'],
+                            time=note['time'] - last))
+            else:
+                track.append(
+                    Message('note_off', channel=channel, note=note['key'], velocity=0, time=note['time'] - last))
+            last = note['time']
+
+        if save:
+            self.buf = BytesIO()
+            mid = MidiFile()
+            mid.tracks.append(track)
+            mid.save(file=self.buf)
+            return mid.length
+        return track
 
     def toDemoMidi(self, bpm, channel=0, save=True):
         track = MidiTrack()
@@ -79,11 +106,11 @@ class Track():
         for note in self.demoNotes:
             if note == ' ':
                 track.append(Message('note_on', channel=channel, note=64, velocity=0, time=0))
-                track.append(Message('note_off', channel=channel, note=64, velocity=0, time=192))
+                track.append(Message('note_off', channel=channel, note=64, velocity=0, time=DELTA))
             elif int(note) > 0 and int(note) < 9:
                 note = int(note)
                 track.append(Message('note_on', channel=channel, note=pitch[note], velocity=100, time=0))
-                track.append(Message('note_off', channel=channel, note=pitch[note], velocity=100, time=192))
+                track.append(Message('note_off', channel=channel, note=pitch[note], velocity=100, time=DELTA))
         if save:
             self.buf = BytesIO()
             mid = MidiFile()

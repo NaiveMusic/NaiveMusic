@@ -1,5 +1,8 @@
 MAX_TRACK_NUM = 16
 
+# TICKS_PER_BEAT
+DELTA = 480
+
 KEY_RANGE = range(0,128)
 
 VEL_RANGE = range(0,128)
