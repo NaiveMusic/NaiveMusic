@@ -55,29 +55,31 @@ class TrackView(QWidget):
         vbox.setContentsMargins(0, 0, 0, 0)
         vbox.addWidget(self.instrumentButton)
         vbox.addLayout(hbox)
-        vbox2 = QVBoxLayout()
-        vbox2.setContentsMargins(0, 0, 0, 0)
-        vbox2.addWidget(self.track)
         hbox = QHBoxLayout()
         hbox.setContentsMargins(0, 0, 0, 0)
         hbox.addLayout(vbox)
-        hbox.addLayout(vbox2)
+        hbox.addWidget(self.track)
 
         self.setLayout(hbox)
 
     # 初始化音轨区域
     def initTrackUI(self):
         self.track = QPushButton('track', self)
-        self.track.setMinimumSize(1160, 120)
+        self.track.setMinimumSize(1160, 110)
         self.track.clicked.connect(self.selectTrack)
 
 
-    # 轨道乐器图标
     def initInstrumentUI(self):
+        '''
+
+
+        '''
         self.instrumentButton = QPushButton('', self)
         self.instrumentButton.setMinimumSize(80, 80)
         self.instrumentButton.setCheckable(True)  
         self.instrumentButton.setIcon(QIcon('view/Icons/instrument/default.svg'))
+
+
 
     def bindInstrument(self, icon, instID):
         '''
@@ -166,7 +168,8 @@ class TrackView(QWidget):
 
         '''
         self.trackController.setCurTrack(self.trackID)
-        self.sheet.setPlainText(self.trackController.curTrack.demoNotes)
+        print('Track {0} selected !'.format(self.trackID))
+        self.sheet.setPlainText(self.trackController._curTrack.demoNotes)
 
     def deleteTrack(self):
         ''''
