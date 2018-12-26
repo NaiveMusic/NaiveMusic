@@ -1,30 +1,33 @@
-import sys
-from PyQt5 import QtCore, QtWidgets
+from PyQt5 import QtGui, QtCore, QtWidgets
 
 from .trackView_Demo import TrackView_Demo
 from .sheetView_Demo import SheetView_Demo
 from controller.mainController import MainController
 
 
-
-
 class MainView_Demo(QtWidgets.QMainWindow):
     def __init__(self):
         super().__init__()
-        self.setWindowTitle('Demo2')
+        self.setWindowTitle('NaiveMusic_Demo')
         self.resize(800, 600)
         self.mc = MainController()
-        self.mc.setCurView(self)
+        self.mc.register(self)
+
+        # 窗口图标
+        icon = QtGui.QIcon()
+        icon.addPixmap(
+            QtGui.QPixmap(":/global/src/global/logo.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.setWindowIcon(icon)
 
         # 居中显示
         self.widget = QtWidgets.QWidget(self)
-        self.widget.setGeometry(QtCore.QRect(100, 100, 600, 400))
+        self.setCentralWidget(self.widget)
         self.grid = QtWidgets.QGridLayout(self.widget)
         self.widget.setLayout(self.grid)
 
         # Sheet
-        self.sheet = SheetView_Demo()
-        self.sheet.textChanged.connect(self.updateTrack)
+        self.sheet = SheetView_Demo(self.mc)
         self.grid.addWidget(self.sheet, 0, 0, 1, 7)
 
         # 全局播放
@@ -34,11 +37,10 @@ class MainView_Demo(QtWidgets.QMainWindow):
         self.grid.addWidget(self.play, 1, 0)
 
         # 播放停止
-        self.stop = QtWidgets.QPushButton()
-        self.stop.setText('Pause')
-        self.stop.clicked.connect(self.stopAll)
-        self.grid.addWidget(self.stop, 1, 1)
-        
+        self.pause = QtWidgets.QPushButton()
+        self.pause.setText('Pause')
+        self.pause.clicked.connect(self.pauseAll)
+        self.grid.addWidget(self.pause, 1, 1)
 
         # bpm label
         self.label = QtWidgets.QLabel('BPM')
@@ -75,7 +77,7 @@ class MainView_Demo(QtWidgets.QMainWindow):
     # view不要自己调用update！
     def update(self):
         # sheetview update
-        self.sheet.setPlainText(self.mc.getCurTrack().demoNotes)
+        # self.sheet.setPlainText(self.mc.getCurTrack().demoNotes)
 
         # trackView update
         for view in self.trackViews.values():
@@ -85,10 +87,12 @@ class MainView_Demo(QtWidgets.QMainWindow):
         self.trackViews = {
             i: self.trackViews[i]
             for i in self.trackViews
-            if isinstance(self.trackViews[i], TrackView_Demo) and self.trackViews[i].deleted == False
+            if isinstance(self.trackViews[i], TrackView_Demo)
+            and self.trackViews[i].deleted == False
         }
 
-        for i, view in enumerate(self.trackViews.values()):  # may not stable, sort needed
+        for i, view in enumerate(
+                self.trackViews.values()):  # may not stable, sort needed
             self.grid.addWidget(view, i + 2, 0, 1, 7)
 
     # 添加track
@@ -106,14 +110,17 @@ class MainView_Demo(QtWidgets.QMainWindow):
 
     # 全局播放
     def playAll(self):
-        self.mc.playAll()
+        self.mc.playAllDemo()
 
-    def stopAll(self):
-        self.mc.stopAll()
+    def pauseAll(self):
+        self.mc.pauseAllDemo()
 
-    # 更新track的text
-    def updateTrack(self):
-        text = self.sheet.toPlainText()
-        self.mc.changed = True
-        self.mc.getCurTrack().demoNotes = text
-        self.trackViews[self.mc.getCurTrackID()].trackShow.setText(text)
+    def closeEvent(self, event):
+        reply = QtWidgets.QMessageBox.question(
+            self, 'Message', "Are you sure to quit?",
+            QtWidgets.QMessageBox.Yes | QtWidgets.QMessageBox.No,
+            QtWidgets.QMessageBox.No)
+        if reply == QtWidgets.QMessageBox.Yes:
+            event.accept()
+        else:
+            event.ignore()

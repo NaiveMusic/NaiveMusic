@@ -14,11 +14,7 @@ class MainController(SheetController, AudioController):
         SheetController.__init__(self)
         AudioController.__init__(self)
         self._curFile = File(bpm=120)
-        self._curView = None
-
-    # View part
-    def setCurView(self, view):
-        self._curView = view
+        self._state = STATE.DEFAULT
 
     # Track part
     def getTrack(self, trackID):
@@ -36,10 +32,8 @@ class MainController(SheetController, AudioController):
         return self.getTrack(trackID).vel
 
     def setCurTrack(self, trackID):
-        self._curTrackID = trackID
-        self._curTrack = self.getTrack(trackID)
-        self._curPos = 0
-        self._curView.update()
+        self.switchTrack(trackID, self.getTrack(trackID))
+        self.notify()
 
     def setTrackInst(self, trackID, inst):
         if inst not in INSTRUMENT:
@@ -60,7 +54,7 @@ class MainController(SheetController, AudioController):
         if trackID not in self._curFile.tracks:
             raise ValueError('Track ID {} not found when del'.format(trackID))
         self._curFile.delTrack(trackID)
-        self._curView.update()
+        self.notify()
 
     # File part
     def setBPM(self, bpm):
@@ -77,17 +71,24 @@ class MainController(SheetController, AudioController):
 
     # Play part
     def playAll(self):
-        if self.changed:
-            self.length = self._curFile.toDemoMidi()
-            self.changed = False
-            self._play(self._curFile.buf, self.length, True)
-        else:
-            self._play(self._curFile.buf, self.length, False)
+        self.length = self._curFile.toMidi()
+        self._play(self._curFile.buf, self.length, True)
 
-
-    def stopAll(self):
-        self._stop()
+    def pauseAll(self):
+        self._pause()
 
     def playTrack(self, trackID):
-        length = self.getTrack(trackID).toDemoMidi(self.getBPM())
+        length = self.getTrack(trackID).toMidi(self.getBPM())
         self._play(self._curFile.buf, length)
+
+    # Demo play part
+    def playAllDemo(self):
+        self.length = self._curFile.toDemoMidi()
+        self._play(self._curFile.buf, self.length, True)
+
+    def pauseAllDemo(self):
+        self._pause()
+
+    def playTrackDemo(self, trackID):
+        length = self.getTrack(trackID).toDemoMidi(self.getBPM())
+        self._play(self.getTrack(trackID).buf, length)

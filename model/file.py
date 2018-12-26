@@ -21,13 +21,17 @@ class File():
         del poped
 
     def toMidi(self):
-        #TODO
-        pass
-    
+        mid = MidiFile()
+        for i, track in enumerate(self.tracks.values()):
+            midiTrack = track.toMidi(bpm=self.bpm, channel=i, save=False)
+            mid.tracks.append(midiTrack)
+        self.buf = BytesIO()
+        mid.save(file=self.buf)
+        return mid.length
+
     def midiToFile(self):
         #TODO
         pass
-
 
     def toDemoMidi(self):
         mid = MidiFile()
