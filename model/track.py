@@ -27,6 +27,11 @@ class Track():
         self.notes[noteID].setAll(key, vel, on, off)
 
     def addNote(self, key, vel, on, off):
+        if len(self.search(on, off, keys=[key])) > 0:
+            return False
+        if (key not in KEY_RANGE) or (vel not in VEL_RANGE) or (on > off) or (on < 0):
+            return False
+
         self.notes[self.curID] = Note(key, vel, on, off)
         self.curID += 1
 
