@@ -8,19 +8,22 @@ from model.const import *
 
 
 class InstrumentView(QWidget):
-    def __init__(self, instID, name, mc, style="""
+    def __init__(self, instID, instName, mc, style="""
             .QPushButton {
-                    width: 20px;
-                    height: 20px;
-                    border-style: outset;
-                    border-width: 2px;
-                    border-radius: 10px;
-                    border-color: beige;
-                    background-color: rgb(255, 255, 111);
+                width: 20px;
+                height: 20px;
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 10px;
+                border-color: beige;
+                padding: 15px;
+                background-color: rgb(255, 255, 111);
+                image: url('view/Icons/instrument/default.svg');
+                
                 } """):
         super().__init__()
         self.instrumentID = instID
-        self.instName = name
+        self.instName = instName
         self.style = style
         self.mc = mc
         self.init()
@@ -38,7 +41,7 @@ class InstrumentView(QWidget):
         p5 = r"Drum"
         p6 = r"Organ"
 
-        if re.search(p1, self.name) or re.search(p2, self.name) or re.search(p6, self.name) :
+        if re.search(p1, self.instName) or re.search(p2, self.instName) or re.search(p6, self.instName) :
             self.style = """
                 .QPushButton {
                     width: 20px;
@@ -49,10 +52,10 @@ class InstrumentView(QWidget):
                     border-color: beige;
                     padding: 15px;
                     background-color: rgb(255, 255, 111);
-                    image: url('view/Icons/instrument/keyboard.svg');
+                    image: url('view/Icons/instrument/piano.svg');
                 
                 }"""
-        else if re.search(p3, self.name):
+        elif re.search(p3, self.instName):
             self.style = """
                 .QPushButton {
                     width: 20px;
@@ -67,7 +70,7 @@ class InstrumentView(QWidget):
                 
                 }"""
 
-        else if re.search(p4, self.name):
+        elif re.search(p4, self.instName):
             self.style = """
                 .QPushButton {
                     width: 20px;
@@ -81,7 +84,7 @@ class InstrumentView(QWidget):
                     image: url('view/Icons/instrument/guitar.svg');
                 
                 }"""
-        else if re.search(p5, self.name):
+        elif re.search(p5, self.instName):
             self.style = """
                 .QPushButton {
                     width: 20px;
@@ -115,29 +118,32 @@ class InstrumentView(QWidget):
 
     def deleteInstrument(self):
         self.deleteLater()
+        self.mc.setSelectedInst(None)
 
     def setInst(self):
         self.mc.setSelectedInst(self.instrumentID)
         print("Instrument {0} selected !".format(self.instrumentID))
 
 
-class InstrumentContainer(QWidget, mc):
-    def __init__(self):
+class InstrumentContainer(QWidget):
+    def __init__(self, mc):
         super().__init__()
         self.instList = {}
         self.mc = mc
+        self.init()
+        self.initUI()
 
 
     def init(self):
-    	instList[1] = InstrumentView(1, INSTRUMENT[1], self.mc)
-    	instList[26] = InstrumentView(26, INSTRUMENT[26], self.mc)
-    	instList[33] = InstrumentView(33, INSTRUMENT[33], self.mc)
+    	self.instList[1] = InstrumentView(1, INSTRUMENT[1], self.mc)
+    	self.instList[26] = InstrumentView(26, INSTRUMENT[26], self.mc)
+    	self.instList[33] = InstrumentView(33, INSTRUMENT[33], self.mc)
         
 
     def initUI(self):
         self.instLayout = QHBoxLayout()
-        self.addStretch(0)
-        for instID, inst in instList.items():
+        self.instLayout.addStretch(0)
+        for instID, inst in self.instList.items():
         	self.instLayout.addWidget(inst)
         self.instLib = QComboBox()
         self.instLib.addItems(['{} {}'.format(i, INSTRUMENT[i]) for i in INSTRUMENT])
@@ -148,9 +154,15 @@ class InstrumentContainer(QWidget, mc):
 
 
     def getCurInstStyle(self):
-        return instList[self.mc.getSelectedInst()].style
+        return self.instList[self.mc.getSelectedInst()].style
+
+    def getCurInstID(self):
+        return self.mc.getSelectedInst()
 
     def addInst(self):
-    	pass
+        instID = self.instLib.currentIndex()
+        newInst = InstrumentView(instID, INSTRUMENT[instID], self.mc)
+        self.instList[instID] = newInst
+        self.instLayout.insertWidget(self.instLayout.count()-2, newInst)
 
 
