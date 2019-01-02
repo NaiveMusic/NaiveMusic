@@ -3,7 +3,6 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QGuiApplication
 from controller.mainController import MainController
-import view.sheet.pictures_rc
 import sys
 
 
@@ -119,7 +118,7 @@ class SheetView_Demo(QtWidgets.QWidget):
 
         def setNote(row, col):
             noteName = 'Note_' + str(row) + '_' + str(col)
-            self.noteDict[noteName] = NMPushButton(row, col)
+            self.noteDict[noteName] = NMPushButton(row, col, self.noteDict)
             sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
                                                QtWidgets.QSizePolicy.Minimum)
             sizePolicy.setHorizontalStretch(0)
@@ -128,10 +127,10 @@ class SheetView_Demo(QtWidgets.QWidget):
                 self.noteDict[noteName].sizePolicy().hasHeightForWidth())
             self.noteDict[noteName].setSizePolicy(sizePolicy)
             self.noteDict[noteName].setStyleSheet(
-                "QPushButton:!hover:!checked { border-image: url(:/sheet/src/sheet/noCheck.png); }\n"
-                "QPushButton:!hover:checked { border-image: url(:/sheet/src/sheet/checked.png) }\n"
-                "QPushButton:!checked:pressed, QPushButton:hover:checked:!pressed { border-image: url(:/sheet/src/sheet/checked_hover.png) }\n"
-                "QPushButton:checked:pressed, QPushButton:hover:!checked:!pressed { border-image: url(:/sheet/src/sheet/noCheck_hover.png); }"
+                "QPushButton:!hover:!checked { border-image: url('view/Icons/sheet/noCheck.png'); }\n"
+                "QPushButton:!hover:checked { border-image: url('view/Icons/sheet/checked.png') }\n"
+                "QPushButton:hover:checked { border-image: url('view/Icons/sheet/checked_hover.png') }\n"
+                "QPushButton:hover:!checked { border-image: url('view/Icons/sheet/noCheck_hover.png'); }"
             )
             self.noteDict[noteName].setText("")
             self.noteDict[noteName].setCheckable(True)
@@ -226,18 +225,23 @@ class SheetView_Demo(QtWidgets.QWidget):
 
 
 class NMPushButton(QtWidgets.QPushButton):
-    def __init__(self, row, col):
+    def __init__(self, row, col, noteDict):
         super().__init__()
-        self.setAcceptDrops(True)
+        # note坐标，以左上角为(1,1)
         self.row = row
         self.col = col
+        # 传入noteDict，使得每个note都能操作其他note
+        self.noteDict = noteDict
+        # 长note起点列号，为0则不是长note
+        self.startFrom = 0
+        self.setAcceptDrops(True)
 
     # 重载点击事件
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == QtCore.Qt.LeftButton:
             self.setChecked(True)
             print(self.objectName() + ': ' +
-                  ("on" if self.isChecked() else "off"))
+                  "on" if self.isChecked() else "off")
         elif QMouseEvent.button() == QtCore.Qt.RightButton:
             self.setChecked(False)
             print(self.objectName() + ': ' +
@@ -247,14 +251,84 @@ class NMPushButton(QtWidgets.QPushButton):
         if e.buttons() != QtCore.Qt.LeftButton:
             return
         mimeData = QtCore.QMimeData()
+        # 传输起点坐标名称
+        mimeData.setText(self.objectName())
         drag = QtGui.QDrag(self)
         drag.setMimeData(mimeData)
         dropAction = drag.exec_(QtCore.Qt.MoveAction)
 
     def dragEnterEvent(self, QMouseEvent):
-        QMouseEvent.accept()
+        if QMouseEvent.mimeData().hasText():
+            QMouseEvent.accept()
+        else:
+            QMouseEvent.ignore()
+            return
+        # 拖动的起始行列号
+        startRow = self.noteDict[QMouseEvent.mimeData().text()].row
+        startCol = self.noteDict[QMouseEvent.mimeData().text()].col
+        # 列内拖动
+        if self.col == startCol:
+            if ('Note_' + str(startRow) + '_' +
+                    str(self.col - 1)) in self.noteDict.keys():
+                if self.noteDict['Note_' + str(startRow) + '_' +
+                                 str(self.col - 1)].startFrom == startCol:
+                    self.noteDict['Note_' + str(startRow) + '_' +
+                                  str(self.col - 1)].setChecked(False)
+                    self.noteDict['Note_' + str(startRow) + '_' +
+                                  str(self.col - 1)].startFrom = 0
+            if ('Note_' + str(startRow) + '_' +
+                    str(self.col + 1)) in self.noteDict.keys():
+                if self.noteDict['Note_' + str(startRow) + '_' +
+                                 str(self.col + 1)].startFrom == startCol:
+                    self.noteDict['Note_' + str(startRow) + '_' +
+                                  str(self.col + 1)].setChecked(False)
+                    self.noteDict['Note_' + str(startRow) + '_' +
+                                  str(self.col + 1)].startFrom = 0
+            return
+        # 目前对应列行内的note
+        endingNote = self.noteDict['Note_' + str(startRow) + '_' + str(
+            self.col)]
+        # 行内note延长绘制
+        i = startCol
+        while i != endingNote.col:
+            self.noteDict['Note_' + str(startRow) + '_' +
+                          str(i)].setChecked(True)
+            self.noteDict['Note_' + str(startRow) + '_' +
+                          str(i)].startFrom = startCol
+            if i < endingNote.col:
+                i = i + 1
+            else:
+                i = i - 1
+        self.noteDict['Note_' + str(startRow) + '_' + str(i)].setChecked(True)
+        self.noteDict['Note_' + str(startRow) + '_' +
+                      str(i)].startFrom = startCol
+        # 删除回退的note
+        if endingNote.col < startCol:
+            if ('Note_' + str(startRow) + '_' +
+                    str(endingNote.col - 1)) in self.noteDict.keys():
+                preNote = self.noteDict['Note_' + str(startRow) + '_' +
+                                        str(endingNote.col - 1)]
+            else:
+                return
+        else:
+            if ('Note_' + str(startRow) + '_' +
+                    str(endingNote.col + 1)) in self.noteDict.keys():
+                preNote = self.noteDict['Note_' + str(startRow) + '_' +
+                                        str(endingNote.col + 1)]
+            else:
+                return
+        if preNote.startFrom == startCol:
+            preNote.setChecked(False)
+            preNote.startFrom = 0
 
     def dropEvent(self, QMouseEvent):
         QMouseEvent.setDropAction(QtCore.Qt.MoveAction)
         QMouseEvent.accept()
-        self.setChecked(True)
+        startNote = self.noteDict[QMouseEvent.mimeData().text()]
+        endNote = self.noteDict['Note_' + str(startNote.row) + '_' + str(
+            self.col)]
+        if startNote.col == endNote.col:
+            startNote.startFrom = 0
+        else:
+            print("Long note from " + QMouseEvent.mimeData().text() + " to " +
+                  endNote.objectName())

@@ -16,7 +16,7 @@ class MainView_Demo(QtWidgets.QMainWindow):
         # 窗口图标
         icon = QtGui.QIcon()
         icon.addPixmap(
-            QtGui.QPixmap(":/global/src/global/logo.png"), QtGui.QIcon.Normal,
+            QtGui.QPixmap("view/Icons/global/logo.png"), QtGui.QIcon.Normal,
             QtGui.QIcon.Off)
         self.setWindowIcon(icon)
 
