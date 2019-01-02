@@ -67,6 +67,9 @@ class Menu(QWidget):
         self.importButton.clicked.connect(self.openFile)
         self.importButton.move(100, 350)
 
+        self.exitButton = QPushButton('Exit', self.dialog)
+        self.exitButton.clicked.connect(self.openFile)
+        self.exitButton.move(100, 400)
 
         self.dialog.setWindowTitle("Menu")
         self.dialog.setWindowModality(Qt.ApplicationModal)

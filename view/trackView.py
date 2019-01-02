@@ -65,8 +65,17 @@ class TrackView(QWidget):
                 instID, int type, id of the instrument
 
         '''
-        self.trackController.setTrackInst(self.trackID, self.instc.getCurInstID())
-        self.instrumentButton.setStyleSheet(self.instc.getCurInstStyle())
+        if not self.instc.getCurInstID():
+            warnDialog = QDialog(self)
+            warnLabel = QLabel('Please select an instrument first !', warnDialog)
+            warnLabel.move(100, 100)
+            warnDialog.setWindowTitle("Alert")
+            warnDialog.resize(500, 200)
+            warnDialog.setWindowModality(Qt.ApplicationModal)
+            warnDialog.exec_()
+        else:
+            self.trackController.setTrackInst(self.trackID, self.instc.getCurInstID())
+            self.instrumentButton.setStyleSheet(self.instc.getCurInstStyle())
 
         
 

@@ -112,13 +112,20 @@ class InstrumentView(QWidget):
         self.instrumentButton.clicked.connect(self.setInst)
         self.cancelButton = QPushButton('', self)
         self.cancelButton.setGeometry(QRect(70, 0, 10, 10))
+        self.cancelButton.setStyleSheet("""
+            .QPushButton {
+                width: 10px;
+                height: 10px;
+                border: none;
+            }""")
         self.cancelButton.setIcon(QIcon('view/Icons/ui/cancel.svg'))
         self.cancelButton.clicked.connect(self.deleteInstrument)
 
 
     def deleteInstrument(self):
         self.deleteLater()
-        self.mc.setSelectedInst(None)
+        if self.mc.getSelectedInst() and self.instrumentID == self.mc.getSelectedInst():
+            self.mc.setSelectedInst(None)
 
     def setInst(self):
         self.mc.setSelectedInst(self.instrumentID)
