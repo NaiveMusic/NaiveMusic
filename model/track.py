@@ -50,7 +50,8 @@ class Track():
         P.S. we don't search on 'vel' property because it is not characteristic.
         """
         resultList = []
-        for noteID, note in self.notes:
+        for noteID in self.notes:
+            note=self.notes[noteID]
             if (note.key in keys and self._intersect(on, off, note.on, note.off)):
                 resultList.append(noteID)
         return resultList
@@ -73,7 +74,7 @@ class Track():
         track.append(MetaMessage('set_tempo', tempo=bpm2tempo(bpm)))
 
         notes = []
-        for note in self.notes:
+        for note in self.notes.values():
             notes.append({'time': note.on, 'type': 'on', 'key': note.key, 'vel': note.vel})
             notes.append({'time': note.off, 'type': 'off', 'key': note.key, 'vel': note.vel})
         notes.sort(key=lambda x: x['time'])
