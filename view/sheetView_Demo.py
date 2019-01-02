@@ -243,9 +243,32 @@ class NMPushButton(QtWidgets.QPushButton):
             print(self.objectName() + ': ' +
                   "on" if self.isChecked() else "off")
         elif QMouseEvent.button() == QtCore.Qt.RightButton:
-            self.setChecked(False)
-            print(self.objectName() + ': ' +
-                  ("on" if self.isChecked() else "off"))
+            if self.startFrom == 0:
+                self.setChecked(False)
+                print(self.objectName() + ': ' +
+                      ("on" if self.isChecked() else "off"))
+            else:
+                # 向右删除
+                i = self.col
+                while True:
+                    i = i + 1
+                    if self.noteDict['Note_' + str(self.row) + '_' + str(i)].startFrom != self.startFrom:
+                        break
+                    self.noteDict['Note_' + str(self.row) + '_' + str(i)].setChecked(False)
+                    self.noteDict['Note_' + str(self.row) + '_' + str(i)].startFrom = 0
+                    self.noteDict['Note_' + str(self.row) + '_' + str(i)].applyStyle()
+                # 向左删除
+                i = self.col
+                while True:
+                    i = i - 1
+                    if self.noteDict['Note_' + str(self.row) + '_' + str(i)].startFrom != self.startFrom:
+                        break
+                    self.noteDict['Note_' + str(self.row) + '_' + str(i)].setChecked(False)
+                    self.noteDict['Note_' + str(self.row) + '_' + str(i)].startFrom = 0
+                    self.noteDict['Note_' + str(self.row) + '_' + str(i)].applyStyle()
+                self.setChecked(False)
+                self.startFrom = 0
+                self.applyStyle()
 
     def mouseMoveEvent(self, e):
         if e.buttons() != QtCore.Qt.LeftButton:
@@ -276,6 +299,8 @@ class NMPushButton(QtWidgets.QPushButton):
                                   str(self.col - 1)].setChecked(False)
                     self.noteDict['Note_' + str(startRow) + '_' +
                                   str(self.col - 1)].startFrom = 0
+                    self.noteDict['Note_' + str(startRow) + '_' +
+                                  str(self.col - 1)].applyStyle()
             if ('Note_' + str(startRow) + '_' +
                     str(self.col + 1)) in self.noteDict.keys():
                 if self.noteDict['Note_' + str(startRow) + '_' +
@@ -284,6 +309,8 @@ class NMPushButton(QtWidgets.QPushButton):
                                   str(self.col + 1)].setChecked(False)
                     self.noteDict['Note_' + str(startRow) + '_' +
                                   str(self.col + 1)].startFrom = 0
+                    self.noteDict['Note_' + str(startRow) + '_' +
+                                  str(self.col + 1)].applyStyle()
             return
         # 目前对应列行内的note
         endingNote = self.noteDict['Note_' + str(startRow) + '_' + str(
@@ -295,6 +322,7 @@ class NMPushButton(QtWidgets.QPushButton):
                           str(i)].setChecked(True)
             self.noteDict['Note_' + str(startRow) + '_' +
                           str(i)].startFrom = startCol
+            self.noteDict['Note_' + str(startRow) + '_' + str(i)].applyStyle()
             if i < endingNote.col:
                 i = i + 1
             else:
@@ -302,6 +330,7 @@ class NMPushButton(QtWidgets.QPushButton):
         self.noteDict['Note_' + str(startRow) + '_' + str(i)].setChecked(True)
         self.noteDict['Note_' + str(startRow) + '_' +
                       str(i)].startFrom = startCol
+        self.noteDict['Note_' + str(startRow) + '_' + str(i)].applyStyle()
         # 删除回退的note
         if endingNote.col < startCol:
             if ('Note_' + str(startRow) + '_' +
@@ -320,6 +349,7 @@ class NMPushButton(QtWidgets.QPushButton):
         if preNote.startFrom == startCol:
             preNote.setChecked(False)
             preNote.startFrom = 0
+            preNote.applyStyle()
 
     def dropEvent(self, QMouseEvent):
         QMouseEvent.setDropAction(QtCore.Qt.MoveAction)
@@ -329,6 +359,23 @@ class NMPushButton(QtWidgets.QPushButton):
             self.col)]
         if startNote.col == endNote.col:
             startNote.startFrom = 0
+            startNote.applyStyle()
         else:
             print("Long note from " + QMouseEvent.mimeData().text() + " to " +
                   endNote.objectName())
+
+    def applyStyle(self):
+        if self.startFrom == 0:
+            self.setStyleSheet(
+                "QPushButton:!hover:!checked { border-image: url('view/Icons/sheet/noCheck.png'); }\n"
+                "QPushButton:!hover:checked { border-image: url('view/Icons/sheet/checked.png') }\n"
+                "QPushButton:hover:checked { border-image: url('view/Icons/sheet/checked_hover.png') }\n"
+                "QPushButton:hover:!checked { border-image: url('view/Icons/sheet/noCheck_hover.png'); }"
+            )
+        else:
+            self.setStyleSheet(
+                "QPushButton:!hover:!checked { border-image: url('view/Icons/sheet/noCheck.png'); }\n"
+                "QPushButton:!hover:checked { border-image: url('view/Icons/sheet/long_checked.png') }\n"
+                "QPushButton:hover:checked { border-image: url('view/Icons/sheet/long_checked_hover.png') }\n"
+                "QPushButton:hover:!checked { border-image: url('view/Icons/sheet/noCheck_hover.png'); }"
+            )
