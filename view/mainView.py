@@ -4,7 +4,7 @@ from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
 
 from .trackView import TrackView, TrackContainer
-from .InstrumentView import InstrumentView, InstrumentContainer
+from .instrumentView import InstrumentView, InstrumentContainer
 from .sheetView_Demo import SheetView_Demo
 from .toolBar import ToolBar
 from .menuView import Menu
@@ -20,7 +20,7 @@ class MainWindow(QMainWindow):
         self.vbox = QVBoxLayout()
         self.vbox.addStretch(0)
         self.vbox.addWidget(self.sheet)
-        self.vbox.addWidget(InstrumentContainer(self.mc))
+        self.vbox.addWidget(self.instc)
         self.vbox.addWidget(self.toolBar)
         self.vbox.addWidget(self.tc.trackScroll)
         self.vbox.addStretch(0)
@@ -34,6 +34,7 @@ class MainWindow(QMainWindow):
 
     def initUI(self):
         self.mc = MainController()
+        self.instc = InstrumentContainer(self.mc)
         self.initSheetUI()
         self.initTrackUI()
         self.initToolUI()
@@ -46,6 +47,6 @@ class MainWindow(QMainWindow):
         self.sheet = SheetView_Demo(self.mc)
 
     def initTrackUI(self):
-        self.tc = TrackContainer(self.mc, self.sheet)
+        self.tc = TrackContainer(self.mc, self.sheet, self.instc)
 
 
