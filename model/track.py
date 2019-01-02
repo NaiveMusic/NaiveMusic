@@ -79,8 +79,8 @@ class Track():
 
         notes = []
         for note in self.notes:
-            notes.append({'time': note.on, 'type': 'on', 'key': note.key, 'vel': note.vel})
-            notes.append({'time': note.off, 'type': 'off', 'key': note.key, 'vel': note.vel})
+            notes.append({'time': note.on2ticks, 'type': 'on', 'key': note.key, 'vel': note.vel})
+            notes.append({'time': note.off2ticks, 'type': 'off', 'key': note.key, 'vel': note.vel})
         notes.sort(key=lambda x: x['time'])
         last = 0
         for note in notes:
