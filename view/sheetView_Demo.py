@@ -6,6 +6,7 @@ from controller.mainController import MainController
 import view.sheet.pictures_rc
 import sys
 
+from model.const import *
 
 class SheetView_Demo(QtWidgets.QWidget):
     def __init__(self, mc):
@@ -119,7 +120,7 @@ class SheetView_Demo(QtWidgets.QWidget):
 
         def setNote(row, col):
             noteName = 'Note_' + str(row) + '_' + str(col)
-            self.noteDict[noteName] = NMPushButton(row, col)
+            self.noteDict[noteName] = NMPushButton(row, col,self.mc)
             sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
                                                QtWidgets.QSizePolicy.Minimum)
             sizePolicy.setHorizontalStretch(0)
@@ -226,11 +227,12 @@ class SheetView_Demo(QtWidgets.QWidget):
 
 
 class NMPushButton(QtWidgets.QPushButton):
-    def __init__(self, row, col):
+    def __init__(self, row, col,mc):
         super().__init__()
         self.setAcceptDrops(True)
         self.row = row
         self.col = col
+        self.mc=mc
 
     # 重载点击事件
     def mousePressEvent(self, QMouseEvent):
@@ -238,10 +240,23 @@ class NMPushButton(QtWidgets.QPushButton):
             self.setChecked(True)
             print(self.objectName() + ': ' +
                   ("on" if self.isChecked() else "off"))
+            # add note
+            data=self.objectName().split('_')
+            key=73-int(data[1])
+            on=int(data[2])*DELTA
+            off=on+DELTA
+            self.mc.addNote(key=key,vel=100,on=on,off=off)
+
         elif QMouseEvent.button() == QtCore.Qt.RightButton:
             self.setChecked(False)
             print(self.objectName() + ': ' +
                   ("on" if self.isChecked() else "off"))
+            # delete note
+            data=self.objectName().split('_')
+            key=73-int(data[1])
+            on=int(data[2])*DELTA
+            off=on+DELTA
+            self.mc.delNote(key=key,on=on,off=off)
 
     def mouseMoveEvent(self, e):
         if e.buttons() != QtCore.Qt.LeftButton:

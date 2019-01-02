@@ -69,6 +69,13 @@ class MainController(SheetController, AudioController):
         # TODO: use serialization
         return
 
+    # Selection part
+    def getSelectedInst(self):
+        return self._selectedInst
+    
+    def setSelectedInst(self,inst):
+        self._selectedInst = inst
+
     # Play part
     def playAll(self):
         self.length = self._curFile.toMidi()
@@ -79,15 +86,12 @@ class MainController(SheetController, AudioController):
 
     def playTrack(self, trackID):
         length = self.getTrack(trackID).toMidi(self.getBPM())
-        self._play(self._curFile.buf, length)
+        self._play(self.getTrack(trackID).buf, length)
 
     # Demo play part
     def playAllDemo(self):
         self.length = self._curFile.toDemoMidi()
         self._play(self._curFile.buf, self.length, True)
-
-    def pauseAllDemo(self):
-        self._pause()
 
     def playTrackDemo(self, trackID):
         length = self.getTrack(trackID).toDemoMidi(self.getBPM())

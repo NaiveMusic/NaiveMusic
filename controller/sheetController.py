@@ -81,7 +81,7 @@ class SheetController(BaseController):
         on = options.get('on', self._curPos-1)
         off = options.get('off', self._curPos)
 
-        delNoteIDList = self._curTrack.search(keys, on, off)
+        delNoteIDList = self._curTrack.search(on, off,keys)
         for noteID in delNoteIDList:
             self._curTrack.delNote(noteID)        
         self._curPos = on
@@ -190,7 +190,7 @@ class SheetController(BaseController):
                 noteInfo3 = {'key':16,'vel':100,'on':15,'off':16},
         """
         noteInfoList = []
-        noteIDList = self._curTrack.search(keys, on, off)
+        noteIDList = self._curTrack.search(on, off,keys)
         for noteID in noteIDList:
             note = self._curTrack.getNote(noteID)
             noteInfo = {}
