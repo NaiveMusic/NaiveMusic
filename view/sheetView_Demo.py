@@ -30,6 +30,8 @@ class SheetView_Demo(QtWidgets.QWidget):
 
         # Change below
         print(sender.objectName())
+        key=sender.objectName().split('_')[1]
+        self.mc.playSingle(73-int(key))
         # Change above
 
     def setupUi(self, MainWindow):
@@ -70,7 +72,7 @@ class SheetView_Demo(QtWidgets.QWidget):
         # keyNum: 音高
         # place: 从上到下的位置
         def setKey(keyType, keyNum, place):
-            keyName = str(keyType) + "Key_" + str(keyNum)
+            keyName = str(keyType) + "Key_" + str(place)
             self.keyDict[keyName] = QtWidgets.QPushButton(self)
             sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
                                                QtWidgets.QSizePolicy.Minimum)

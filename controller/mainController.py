@@ -1,5 +1,6 @@
 import sys
 import pickle
+
 from model.note import Note
 from model.file import File
 from model.track import Track
@@ -65,21 +66,28 @@ class MainController(SheetController, AudioController):
     def getBPM(self):
         return self._curFile.bpm
 
-    def saveFile(self):
+    def saveFile(self, fileName='temp.nm'):
         # TODO: use serialization
+        pickle.dump(self._curFile, fileName)
         return
+
+    def loadFile(self, fileName='temp.nm'):
+        self._curFile = pickle.load(fileName)
 
     # Selection part
     def getSelectedInst(self):
         return self._selectedInst
-    
-    def setSelectedInst(self,inst):
+
+    def setSelectedInst(self, inst):
         self._selectedInst = inst
 
     # Play part
     def playAll(self):
         self.length = self._curFile.toMidi()
         self._play(self._curFile.buf, self.length, True)
+
+    def playSingle(self,key):
+        self._playSingle(self._curTrack.inst,key)
 
     def pauseAll(self):
         self._pause()

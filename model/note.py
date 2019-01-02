@@ -1,4 +1,4 @@
-from .const import *
+from model.const import *
 
 class Note():
     def __init__(self, key, vel, on, off):
