@@ -25,25 +25,7 @@ class TrackView(QWidget):
         self.initInstrumentUI()
         self.initVolumeUI()
         self.initTrackUI()
-    '''
-        hbox = QHBoxLayout()
-        hbox.setContentsMargins(0, 0, 0, 0)
-        hbox.addWidget(self.volume)
-        hbox.addWidget(self.vAdjuster)
-        #hbox.addStretch(0)
-        vbox = QVBoxLayout()
-        vbox.setContentsMargins(0, 0, 0, 0)
-        vbox.addWidget(self.instrumentButton)
-        vbox.addLayout(hbox)
-        #vbox.addStretch(1)
-        hbox = QHBoxLayout()
-        hbox.setContentsMargins(0, 0, 0, 0)
-        hbox.addLayout(vbox)
-        hbox.addWidget(self.track)
-        hbox.addStretch(0)
 
-        self.setLayout(hbox)
-    '''
     # 初始化音轨区域
     def initTrackUI(self):
         self.track = QPushButton('track', self)
@@ -68,7 +50,7 @@ class TrackView(QWidget):
                     border-color: beige;
                     padding: 15px;
                     background-color: rgb(255, 255, 111);
-                    image: url('view/Icons/instrument/default.svg');
+                    image: url('view/Icons/instrument/plug.svg');
                 } """)  
         self.instrumentButton.clicked.connect(self.bindInstrument)
 
@@ -83,8 +65,7 @@ class TrackView(QWidget):
                 instID, int type, id of the instrument
 
         '''
-        self.mc.setTrackInst(self.trackID, self.mc.getSelectedInst())
-        #TODO 
+        self.trackController.setTrackInst(self.trackID, self.instc.getCurInstID())
         self.instrumentButton.setStyleSheet(self.instc.getCurInstStyle())
 
         
@@ -101,7 +82,6 @@ class TrackView(QWidget):
         self.currentVIcon = QIcon('view/Icons/volume/midVolume.svg')
         self.volume.clicked.connect(self.muteTrack)
 
-        # 音量滑动条
         self.vAdjuster = QSlider(Qt.Horizontal, self)
         self.vAdjuster.setGeometry(QRect(25, 85, 50, 20))
         self.vAdjuster.setMaximum(100)
@@ -166,7 +146,7 @@ class TrackView(QWidget):
         print('Track {0} selected !'.format(self.trackID))
 
     def updateSheet(self):
-
+        # TODO
         pass
 
     def deleteTrack(self):
@@ -175,16 +155,17 @@ class TrackView(QWidget):
 
         '''
         self.deleteLater()
-        pass
+        
 
 
 
 
 class TrackContainer(QWidget):
-    def __init__(self, mc, sheet):
+    def __init__(self, mc, sheet, instc):
         super().__init__()
         self.mc = mc
         self.sheet = sheet
+        self.instc = instc
         self.tracklist = {}
         self.init()
         self.initUI()
@@ -192,7 +173,7 @@ class TrackContainer(QWidget):
     def init(self):
         for i in range(4):
             trackID = self.mc.addTrack(inst=0, vel=80)
-            self.tracklist[trackID] = TrackView(self.mc, trackID, self.sheet)
+            self.tracklist[trackID] = TrackView(self.mc, trackID, self.sheet, self.instc)
 
 
     def initUI(self):
@@ -224,7 +205,7 @@ class TrackContainer(QWidget):
 
     def addTrack(self):
         trackID = self.mc.addTrack(inst=0, vel=80)
-        self.tracklist[trackID] = TrackView(self.mc, trackID, self.sheet)
+        self.tracklist[trackID] = TrackView(self.mc, trackID, self.sheet, self.instc)
         self.trackLayout.insertWidget(self.trackLayout.count()-1, self.tracklist[trackID])
         self.updateUI()
 
