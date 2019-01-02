@@ -69,6 +69,13 @@ class MainController(SheetController, AudioController):
         # TODO: use serialization
         return
 
+    # Selection part
+    def getSelectedInst(self):
+        return self._selectedInst
+    
+    def setSelectedInst(self,inst):
+        self._selectedInst = inst
+
     # Play part
     def playAll(self):
         self.length = self._curFile.toMidi()

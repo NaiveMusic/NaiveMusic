@@ -29,6 +29,7 @@ class Track():
     def addNote(self, key, vel, on, off):
         self.notes[self.curID] = Note(key, vel, on, off)
         self.curID += 1
+        return self.curID - 1
 
     def delNote(self, noteID):
         if noteID not in self.notes:
