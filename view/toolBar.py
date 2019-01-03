@@ -28,7 +28,7 @@ class ToolBar(QWidget):
         self.menu = menu
         self.mc = mc
         self.tc = tc
-        self.isPlay = True
+        self.isPlay = False
         self.init()
         self.initUI()
 
@@ -225,33 +225,69 @@ class ToolBar(QWidget):
                     border-color: beige;
                     padding: 15px;
                     background-color: rgb(255, 255, 111);
-                    image: url('view/Icons/ui/pause.svg');
+                    image: url('view/Icons/ui/play.svg');
                 } """)
             self.isPlay = False
             self.pause()
             print('Track {0} now paused. '.format(self.mc.getCurTrackID()))
 
-        else: 
-            self.playButton.setStyleSheet("""
-            .QPushButton {
-                width: 30px;
-                height: 30px;
-                border-style: outset;
-                border-width: 2px;
-                border-radius: 10px;
-                border-color: beige;
-                padding: 15px;
-                background-color: rgb(255, 255, 111);
-                image: url('view/Icons/ui/play.svg');
-            } """)
-            self.isPlay = True
-            self.mc.playTrackDemo(self.mc.getCurTrackID())
-            print('Track {0} is playing. '.format(self.mc.getCurTrackID()))
+        else:
+            if self.mc.getCurTrackID() is None:
+                self.alert("Please select a track to play !")
+            else:
+                self.playButton.setStyleSheet("""
+                .QPushButton {
+                    width: 30px;
+                    height: 30px;
+                    border-style: outset;
+                    border-width: 2px;
+                    border-radius: 10px;
+                    border-color: beige;
+                    padding: 15px;
+                    background-color: rgb(255, 255, 111);
+                    image: url('view/Icons/ui/pause.svg');
+                } """)
+                self.isPlay = True
+                self.mc.playTrack(self.mc.getCurTrackID())
+                print('Track {0} is playing. '.format(self.mc.getCurTrackID()))
 
     def playAll(self):
+        if self.isPlay:
+            self.playAllButton.setStyleSheet("""
+                .QPushButton {
+                    width: 30px;
+                    height: 30px;
+                    border-style: outset;
+                    border-width: 2px;
+                    border-radius: 10px;
+                    border-color: beige;
+                    padding: 15px;
+                    background-color: rgb(255, 255, 111);
+                    image: url('view/Icons/ui/playAll.svg');
+                } """)
+            self.isPlay = False
+            self.pause()
+            print('All paused. ')
 
-        self.mc.playAll()
-        pass
+        else:
+            if self.mc.getTrackNum() == 0:
+                self.alert("There is no track added !")
+            else:
+                self.playAllButton.setStyleSheet("""
+                .QPushButton {
+                    width: 30px;
+                    height: 30px;
+                    border-style: outset;
+                    border-width: 2px;
+                    border-radius: 10px;
+                    border-color: beige;
+                    padding: 15px;
+                    background-color: rgb(255, 255, 111);
+                    image: url('view/Icons/ui/pauseAll.svg');
+                } """)
+                self.isPlay = True
+                self.mc.playAll()
+                print('All are playing. ')
 
     def pause(self):
 
@@ -268,13 +304,27 @@ class ToolBar(QWidget):
     def setBPM(self):
         self.mc.setBPM(self.bpmBox.value())
 
-        # TODO
-
     def addTrack(self):
-        self.tc.addTrack()
+        if self.mc.getTrackNum() >= MAX_TRACK_NUM:
+            self.alert('Reach the max number of tracks !')
+        else:
+            self.tc.addTrack()
 
     def delTrack(self):
-        self.tc.delTrack()
+        if self.mc.getCurTrackID() is None:
+            self.alert('Please select a track to delete !')
+        else:
+            self.tc.delTrack()
+            self.mc.reset()
+
+    def alert(self, info):
+            warnDialog = QDialog(self)
+            warnLabel = QLabel(info, warnDialog)
+            warnLabel.move(100, 100)
+            warnDialog.setWindowTitle("Alert")
+            warnDialog.resize(500, 200)
+            warnDialog.setWindowModality(Qt.ApplicationModal)
+            warnDialog.exec_()
 
 
 

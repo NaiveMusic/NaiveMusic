@@ -20,6 +20,10 @@ class SheetController(BaseController):
         self._selectedOff = 0
         self._copiedNoteList = []
 
+    def reset(self):
+        self._curTrackID = None
+        self._curTrack = None
+
     def getCurTrackID(self):
         return self._curTrackID
     
