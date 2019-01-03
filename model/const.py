@@ -1,4 +1,5 @@
 from enum import Enum
+import re
 
 MAX_TRACK_NUM = 16
 
@@ -153,3 +154,88 @@ INSTRUMENT = {
     126: 'Applause',
     127: 'Gun Shot',
 }
+
+def style(instName):
+    p1 = r"Piano"
+    p2 = r"Grand"
+    p3 = r"Bass"
+    p4 = r"Guitar"
+    p5 = r"Drum"
+    p6 = r"Organ"
+
+    if re.search(p1, instName) or re.search(p2, instName) or re.search(p6, instName) :
+        style = """
+            .QPushButton {
+                width: 20px;
+                height: 20px;
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 10px;
+                border-color: beige;
+                padding: 15px;
+                background-color: rgb(255, 255, 111);
+                image: url('view/Icons/instrument/piano.svg');
+            
+            }"""
+    elif re.search(p3, instName):
+        style = """
+            .QPushButton {
+                width: 20px;
+                height: 20px;
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 10px;
+                border-color: beige;
+                padding: 15px;
+                background-color: rgb(255, 255, 111);
+                image: url('view/Icons/instrument/bass.svg');
+            
+            }"""
+
+    elif re.search(p4, instName):
+        style = """
+            .QPushButton {
+                width: 20px;
+                height: 20px;
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 10px;
+                border-color: beige;
+                padding: 15px;
+                background-color: rgb(255, 255, 111);
+                image: url('view/Icons/instrument/guitar.svg');
+            
+            }"""
+    elif re.search(p5, instName):
+        style = """
+            .QPushButton {
+                width: 20px;
+                height: 20px;
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 10px;
+                border-color: beige;
+                padding: 15px;
+                background-color: rgb(255, 255, 111);
+                image: url('view/Icons/instrument/drum.svg');
+            
+            }"""
+    else:
+        style = """
+            .QPushButton {
+                width: 20px;
+                height: 20px;
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 10px;
+                border-color: beige;
+                padding: 15px;
+                background-color: rgb(255, 255, 111);
+                image: url('view/Icons/instrument/default.svg');
+                
+            } """
+
+    return style
+
+            
+

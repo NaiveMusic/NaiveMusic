@@ -33,73 +33,7 @@ class InstrumentView(QWidget):
 
     def init(self):
         # Regular Expression to set stylesheet
-
-        p1 = r"Piano"
-        p2 = r"Grand"
-        p3 = r"Bass"
-        p4 = r"Guitar"
-        p5 = r"Drum"
-        p6 = r"Organ"
-
-        if re.search(p1, self.instName) or re.search(p2, self.instName) or re.search(p6, self.instName) :
-            self.style = """
-                .QPushButton {
-                    width: 20px;
-                    height: 20px;
-                    border-style: outset;
-                    border-width: 2px;
-                    border-radius: 10px;
-                    border-color: beige;
-                    padding: 15px;
-                    background-color: rgb(255, 255, 111);
-                    image: url('view/Icons/instrument/piano.svg');
-                
-                }"""
-        elif re.search(p3, self.instName):
-            self.style = """
-                .QPushButton {
-                    width: 20px;
-                    height: 20px;
-                    border-style: outset;
-                    border-width: 2px;
-                    border-radius: 10px;
-                    border-color: beige;
-                    padding: 15px;
-                    background-color: rgb(255, 255, 111);
-                    image: url('view/Icons/instrument/bass.svg');
-                
-                }"""
-
-        elif re.search(p4, self.instName):
-            self.style = """
-                .QPushButton {
-                    width: 20px;
-                    height: 20px;
-                    border-style: outset;
-                    border-width: 2px;
-                    border-radius: 10px;
-                    border-color: beige;
-                    padding: 15px;
-                    background-color: rgb(255, 255, 111);
-                    image: url('view/Icons/instrument/guitar.svg');
-                
-                }"""
-        elif re.search(p5, self.instName):
-            self.style = """
-                .QPushButton {
-                    width: 20px;
-                    height: 20px;
-                    border-style: outset;
-                    border-width: 2px;
-                    border-radius: 10px;
-                    border-color: beige;
-                    padding: 15px;
-                    background-color: rgb(255, 255, 111);
-                    image: url('view/Icons/instrument/drum.svg');
-                
-                }"""
-        else:
-            pass
+        self.style = style(self.instName)
 
 
 
@@ -124,7 +58,7 @@ class InstrumentView(QWidget):
 
     def deleteInstrument(self):
         self.deleteLater()
-        if self.mc.getSelectedInst() and self.instrumentID == self.mc.getSelectedInst():
+        if self.mc.getSelectedInst() is not None and self.instrumentID == self.mc.getSelectedInst():
             self.mc.setSelectedInst(None)
 
     def setInst(self):

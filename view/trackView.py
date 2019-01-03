@@ -18,24 +18,35 @@ class TrackView(QWidget):
         self.instrument = None
         self.initUI()
     
-    # 初始化单轨的交互界面
     def initUI(self):
+        '''
+            Initialize a single track, composed of:
+                an instrument icon;
+                a volume icon;
+                a volume ajuster;
+                a track button;
+
+        '''
         self.setMinimumSize(1920, 105)
 
         self.initInstrumentUI()
         self.initVolumeUI()
         self.initTrackUI()
 
-    # 初始化音轨区域
+ 
     def initTrackUI(self):
-        self.track = QPushButton('track', self)
+        '''
+            Initialize track button, select a track via click
+
+        '''
+        self.track = QPushButton('track {0}'.format(self.trackID), self)
         self.track.setGeometry(QRect(90, 5, 1800, 100))
         self.track.clicked.connect(self.selectTrack)
 
 
     def initInstrumentUI(self):
         '''
-
+            Initialize instrument icon, bind an instrument via click
 
         '''
         self.instrumentButton = QPushButton('', self)
@@ -58,14 +69,10 @@ class TrackView(QWidget):
 
     def bindInstrument(self):
         '''
-            Set the instrument of track
-
-            Args: 
-                icon, QICON type, icon of the instrument
-                instID, int type, id of the instrument
+            Bind selected instrument to track
 
         '''
-        if not self.instc.getCurInstID():
+        if not self.instc.getCurInstID(): # when no instrument selected
             warnDialog = QDialog(self)
             warnLabel = QLabel('Please select an instrument first !', warnDialog)
             warnLabel.move(100, 100)
@@ -73,9 +80,11 @@ class TrackView(QWidget):
             warnDialog.resize(500, 200)
             warnDialog.setWindowModality(Qt.ApplicationModal)
             warnDialog.exec_()
+
         else:
             self.trackController.setTrackInst(self.trackID, self.instc.getCurInstID())
             self.instrumentButton.setStyleSheet(self.instc.getCurInstStyle())
+            self.instrument = self.instc.getCurInstID()
 
         
 
@@ -151,12 +160,14 @@ class TrackView(QWidget):
 
         '''
         self.trackController.setCurTrack(self.trackID)
-        self.updateSheet()
         print('Track {0} selected !'.format(self.trackID))
 
-    def updateSheet(self):
-        # TODO
-        pass
+
+    def update(self):
+        if self.mc.getTrack(self.trackID) is not None:
+            # TODO update itself
+            self.instrument = self.mc.getTrackInst(self.trackID)
+            self.instrumentButton.setStyleSheet(style(INSTRUMENT[self.instrument]))
 
     def deleteTrack(self):
         ''''
@@ -180,41 +191,34 @@ class TrackContainer(QWidget):
         self.initUI()
 
     def init(self):
-        for i in range(4):
-            trackID = self.mc.addTrack(inst=0, vel=80)
-            self.tracklist[trackID] = TrackView(self.mc, trackID, self.sheet, self.instc)
-
+        self.mc.register(self)
 
     def initUI(self):
-        trackRegion = QWidget()
-        self.trackLayout = QVBoxLayout()
-        for trackID, track in self.tracklist.items():
-            self.trackLayout.addWidget(track)
-        self.trackLayout.addStretch(0)
-        trackRegion.setLayout(self.trackLayout)
         self.trackScroll = QScrollArea()
-        self.trackScroll.setWidget(trackRegion)
+        self.trackScroll.setWidget(QWidget())
         self.trackScroll.setFixedHeight(300)
 
-    def updateUI(self):
+    def update(self):
+        self.tracklist = {}
+        trackLayout = QVBoxLayout()
+        for trackID in self.mc.getTrackIDList():
+            self.tracklist[trackID] = TrackView(self.mc, trackID, self.sheet, self.instc)
+            trackLayout.addWidget(self.tracklist[trackID])
+        trackLayout.addStretch(0)
         trackRegion = QWidget()
-        trackRegion.setLayout(self.trackLayout)
+        trackRegion.setLayout(trackLayout)
         self.trackScroll.setWidget(trackRegion)
 
     def delTrack(self):
         trackID = self.mc.getCurTrackID()
-        self.mc.delTrack(trackID)
         self.tracklist[trackID].deleteTrack()
-        self.trackLayout.removeWidget(self.tracklist[trackID])
         del self.tracklist[trackID]
-
-        self.updateUI()
+        self.mc.delTrack(trackID)
 
         print("Track {0} is deleted !".format(trackID))
 
     def addTrack(self):
-        trackID = self.mc.addTrack(inst=0, vel=80)
-        self.tracklist[trackID] = TrackView(self.mc, trackID, self.sheet, self.instc)
-        self.trackLayout.insertWidget(self.trackLayout.count()-1, self.tracklist[trackID])
-        self.updateUI()
+        trackID = self.mc.addTrack(self.mc.getSelectedInst(), vel=80)
+        self.mc.setCurTrack(trackID)
+        print("Track {0} is added !".format(trackID))
 
