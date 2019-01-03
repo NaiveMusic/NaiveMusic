@@ -1,5 +1,3 @@
-from io import BytesIO
-
 from model.note import Note
 from model.const import *
 from lib.mido import Message, MidiFile, MidiTrack, bpm2tempo, MetaMessage
@@ -27,6 +25,11 @@ class Track():
         self.notes[noteID].setAll(key, vel, on, off)
 
     def addNote(self, key, vel, on, off):
+        if len(self.search(on, off, keys=[key])) > 0:
+            return False
+        if (key not in KEY_RANGE) or (vel not in VEL_RANGE) or (on > off) or (on < 0):
+            return False
+
         self.notes[self.curID] = Note(key, vel, on, off)
         self.curID += 1
         return self.curID - 1
@@ -93,32 +96,30 @@ class Track():
         track.append(Message('note_off', channel=0, note=60, velocity=0, time=DELTA))
 
         if save:
-            self.buf = BytesIO()
             mid = MidiFile()
             mid.tracks.append(track)
-            mid.save(file=self.buf)
-            return mid.length
+            return mid
         return track
 
-    def toDemoMidi(self, bpm, channel=0, save=True):
-        track = MidiTrack()
-        pitch = [58, 60, 62, 64, 65, 67, 69, 71, 72]
+    # def toDemoMidi(self, bpm, channel=0, save=True):
+    #     track = MidiTrack()
+    #     pitch = [58, 60, 62, 64, 65, 67, 69, 71, 72]
 
-        track.append(Message('program_change', channel=channel, program=self.inst, time=0))
-        track.append(Message('control_change', channel=channel, control=7, value=self.vel, time=0))
-        track.append(MetaMessage('set_tempo', tempo=bpm2tempo(bpm)))
-        for note in self.demoNotes:
-            if note == ' ':
-                track.append(Message('note_on', channel=channel, note=64, velocity=0, time=0))
-                track.append(Message('note_off', channel=channel, note=64, velocity=0, time=DELTA))
-            elif int(note) > 0 and int(note) < 9:
-                note = int(note)
-                track.append(Message('note_on', channel=channel, note=pitch[note], velocity=100, time=0))
-                track.append(Message('note_off', channel=channel, note=pitch[note], velocity=100, time=DELTA))
-        if save:
-            self.buf = BytesIO()
-            mid = MidiFile()
-            mid.tracks.append(track)
-            mid.save(file=self.buf)
-            return mid.length
-        return track
+    #     track.append(Message('program_change', channel=channel, program=self.inst, time=0))
+    #     track.append(Message('control_change', channel=channel, control=7, value=self.vel, time=0))
+    #     track.append(MetaMessage('set_tempo', tempo=bpm2tempo(bpm)))
+    #     for note in self.demoNotes:
+    #         if note == ' ':
+    #             track.append(Message('note_on', channel=channel, note=64, velocity=0, time=0))
+    #             track.append(Message('note_off', channel=channel, note=64, velocity=0, time=DELTA))
+    #         elif int(note) > 0 and int(note) < 9:
+    #             note = int(note)
+    #             track.append(Message('note_on', channel=channel, note=pitch[note], velocity=100, time=0))
+    #             track.append(Message('note_off', channel=channel, note=pitch[note], velocity=100, time=DELTA))
+    #     if save:
+    #         self.buf = BytesIO()
+    #         mid = MidiFile()
+    #         mid.tracks.append(track)
+    #         mid.save(file=self.buf)
+    #         return mid.length
+    #     return track

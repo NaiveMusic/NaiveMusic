@@ -50,10 +50,10 @@ class AudioController(BaseController):
     def _callback(self, in_data, frame_count, time_info, status):
         data = self._wf.readframes(frame_count)
         if len(data) < 4096:
-            self._state = STATE.DEFAULT
+            self._state = STATE.EDITING
         return (data, pyaudio.paContinue)
 
-    def _play(self, buf, length, changed=True):
+    def _play(self, buf, length):
         if self._strm.is_active():
             print('playing!')
             return
@@ -83,7 +83,7 @@ class AudioController(BaseController):
         self._strm2.stop_stream()
         self._strm2.start_stream()
 
-    def _getSample(self, buf, length):
+    def _getSample(self, buf, length,export=False,filename=None):
         buf.seek(0)
         buf = buf.read()
 
@@ -99,12 +99,17 @@ class AudioController(BaseController):
         self._fluid_player_stop(player)
         self._fluid_player_join(player)
         self._delete_fluid_player(player)
-        buf = BytesIO()
+        if export: buf = open(filename,'rb')
+        else: buf = BytesIO()
+
         with wave.open(buf, 'wb') as wf:
             wf.setparams((2, 2, 44100, 0, 'NONE', 'NONE'))
             wf.writeframes(sample)
         buf.seek(0)
-        self._wf = wave.open(buf, 'rb')
+        
+        if export: buf.close()
+        else: self._wf = wave.open(buf, 'rb')
+
 
     def _cfunc(self, name, result, *args):
         atypes, aflags = [], []

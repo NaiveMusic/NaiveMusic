@@ -1,5 +1,7 @@
 import sys
 import pickle
+import wave
+from io import BytesIO
 
 from model.note import Note
 from model.file import File
@@ -24,6 +26,9 @@ class MainController(SheetController, AudioController):
             raise ValueError('Track ID {} not found when get'.format(trackID))
         return self._curFile.tracks[trackID]
 
+    def getTrackIDList(self):
+        return self._curFile.tracks.keys()
+
     def getTrackNum(self):
         return len(self._curFile.tracks)
 
@@ -34,7 +39,11 @@ class MainController(SheetController, AudioController):
         return self.getTrack(trackID).vel
 
     def setCurTrack(self, trackID):
-        self.switchTrack(trackID, self.getTrack(trackID))
+        if trackID == None:
+            self._curTrack = None
+            self._curTrackID = None
+        else:
+            self.switchTrack(trackID, self.getTrack(trackID))
         self.notify()
 
     def setTrackInst(self, trackID, inst):
@@ -56,12 +65,12 @@ class MainController(SheetController, AudioController):
         if trackID not in self._curFile.tracks:
             raise ValueError('Track ID {} not found when del'.format(trackID))
         self._curFile.delTrack(trackID)
+        if trackID == self._curTrackID:
+            self.setCurTrack(None)
+        self._state = STATE.DEFAULT
         self.notify()
 
     # File part
-    def getTracksID(self):
-        return self._curFile.tracks.keys()
-
     def setBPM(self, bpm):
         if not isinstance(bpm, int) or bpm < 0 or bpm > 200:
             raise ValueError('bmp must be int within 0~200, not {}'.format(bpm))
@@ -92,25 +101,38 @@ class MainController(SheetController, AudioController):
         self._selectedInst = inst
 
     # Play part
-    def playAll(self):
-        self.length = self._curFile.toMidi()
-        self._play(self._curFile.buf, self.length, True)
+    def playAll(self, export=False, filename=None):
+        '''
+        export can be False(play immediately), or str, current support 'wav' and 'mid')
+        '''
+        mid = self._curFile.toMidi(export)
+        if export == 'mid':
+            mid.save(filename)
+        else:
+            buf = BytesIO()
+            mid.save(file=buf)
+            if not export:
+                self._play(buf, mid.length)
+            elif export == 'wav':
+                self._getSample(buf, mid.length, export=True, filename=filename)
 
-    def playSingle(self,key):
-        self._playSingle(self._curTrack.inst,key)
+    def playSingle(self, key):
+        self._playSingle(self._curTrack.inst, key)
 
     def pauseAll(self):
         self._pause()
 
     def playTrack(self, trackID):
-        length = self.getTrack(trackID).toMidi(self.getBPM())
-        self._play(self.getTrack(trackID).buf, length)
+        mid = self.getTrack(trackID).toMidi(self.getBPM())
+        buf = BytesIO()
+        mid.save(file=buf)
+        self._play(buf, mid.length)
 
     # Demo play part
-    def playAllDemo(self):
-        self.length = self._curFile.toDemoMidi()
-        self._play(self._curFile.buf, self.length, True)
+    # def playAllDemo(self):
+    #     self.length = self._curFile.toDemoMidi()
+    #     self._play(self._curFile.buf, self.length, True)
 
-    def playTrackDemo(self, trackID):
-        length = self.getTrack(trackID).toDemoMidi(self.getBPM())
-        self._play(self.getTrack(trackID).buf, length)
+    # def playTrackDemo(self, trackID):
+    #     length = self.getTrack(trackID).toDemoMidi(self.getBPM())
+    #     self._play(self.getTrack(trackID).buf, length)
