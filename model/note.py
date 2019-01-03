@@ -19,15 +19,6 @@ class Note():
     @property
     def vel(self):
         return self._vel
-
-    @property
-    def on2ticks(self):
-        return self._on * DELTA
-    
-    @property
-    def off2ticks(self):
-        return self._off * DELTA
-    
         
     def getInfo(self):
         '''Return note key, velocity, start time and stop time'''
