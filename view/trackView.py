@@ -28,7 +28,6 @@ class TrackView(QWidget):
 
         '''
         self.setMinimumSize(1920, 105)
-
         self.initInstrumentUI()
         self.initVolumeUI()
         self.initTrackUI()
@@ -195,7 +194,8 @@ class TrackContainer(QWidget):
 
     def initUI(self):
         self.trackScroll = QScrollArea()
-        self.trackScroll.setWidget(QWidget())
+        self.trackScroll.setHorizontalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
+        self.trackScroll.setVerticalScrollBarPolicy(Qt.ScrollBarAlwaysOff)
         self.trackScroll.setFixedHeight(300)
         self.trackScroll.setStyleSheet("""
             .QScrollArea {
@@ -208,9 +208,10 @@ class TrackContainer(QWidget):
         for trackID in self.mc.getTrackIDList():
             self.tracklist[trackID] = TrackView(self.mc, trackID, self.sheet, self.instc)
             trackLayout.addWidget(self.tracklist[trackID])
-        trackLayout.addStretch(0)
+
         trackRegion = QWidget()
-        trackRegion.setLayout(trackLayout)
+        if len(self.tracklist) != 0:
+            trackRegion.setLayout(trackLayout)
         self.trackScroll.setWidget(trackRegion)
 
     def delTrack(self):

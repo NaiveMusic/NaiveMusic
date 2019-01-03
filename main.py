@@ -7,7 +7,7 @@ from PyQt5.QtGui import *
 app = QApplication(sys.argv)
 app.setStyleSheet("""
             QMainWindow {
-                background-color: rgb(0, 0, 0);
+                background-color: rgb(64, 64, 64);
             }""")
 
 window = MainWindow()
