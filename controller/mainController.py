@@ -15,6 +15,7 @@ class MainController(SheetController, AudioController):
         SheetController.__init__(self)
         AudioController.__init__(self)
         self._curFile = File(bpm=120)
+        self._selectedInst = None
         self._state = STATE.DEFAULT
 
     # Track part

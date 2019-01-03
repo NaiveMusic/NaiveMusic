@@ -5,35 +5,14 @@ from PyQt5.QtGui import *
 from model.const import *
 from controller.mainController import MainController
 
-class InstrumentView(QWidget):
-    def __init__(self):
-        super().__init__()
-        self.initUI()
-        self.instrumentID = None
-        hbox = QHBoxLayout()
-        hbox.addWidget(self.instrumentLabel)
-        hbox.addWidget(self.cancelButton)
-        hbox.addStretch(1)
-        self.setLayout(hbox)
-
-    def initUI(self):
-        self.instrumentLabel = QLabel('Default', self)
-        self.instrumentLabel.setMinimumSize(50, 50)
-        self.cancelButton = QPushButton('', self)
-        self.cancelButton.setMinimumSize(10, 10)
-        self.cancelButton.setIcon(QIcon('view/Icons/ui/cancel.svg'))
-        self.cancelButton.clicked.connect(self.deleteInstrument)
-
-
-    def deleteInstrument(self):
-        self.deleteLater()
 
 class TrackView(QWidget):
-    def __init__(self, trackController, trackID, sheet):
+    def __init__(self, trackController, trackID, sheet, instc):
         super().__init__()
         self.sheet = sheet
         self.trackID = trackID
         self.trackController = trackController
+        self.instc = instc
         self.value = 0
         self.isMute = True
         self.instrument = None
@@ -41,45 +20,43 @@ class TrackView(QWidget):
     
     # 初始化单轨的交互界面
     def initUI(self):
-        self.setMinimumSize(70, 70)
+        self.setMinimumSize(1920, 105)
 
         self.initInstrumentUI()
         self.initVolumeUI()
         self.initTrackUI()
 
-        hbox = QHBoxLayout()
-        hbox.setContentsMargins(0, 0, 0, 0)
-        hbox.addWidget(self.volume)
-        hbox.addWidget(self.vAdjuster)
-        vbox = QVBoxLayout()
-        vbox.setContentsMargins(0, 0, 0, 0)
-        vbox.addWidget(self.instrumentButton)
-        vbox.addLayout(hbox)
-        vbox2 = QVBoxLayout()
-        vbox2.setContentsMargins(0, 0, 0, 0)
-        vbox2.addWidget(self.track)
-        hbox = QHBoxLayout()
-        hbox.setContentsMargins(0, 0, 0, 0)
-        hbox.addLayout(vbox)
-        hbox.addLayout(vbox2)
-
-        self.setLayout(hbox)
-
     # 初始化音轨区域
     def initTrackUI(self):
         self.track = QPushButton('track', self)
-        self.track.setMinimumSize(1160, 120)
+        self.track.setGeometry(QRect(90, 5, 1800, 100))
         self.track.clicked.connect(self.selectTrack)
 
 
-    # 轨道乐器图标
     def initInstrumentUI(self):
-        self.instrumentButton = QPushButton('', self)
-        self.instrumentButton.setMinimumSize(80, 80)
-        self.instrumentButton.setCheckable(True)  
-        self.instrumentButton.setIcon(QIcon('view/Icons/instrument/default.svg'))
+        '''
 
-    def bindInstrument(self, icon, instID):
+
+        '''
+        self.instrumentButton = QPushButton('', self)
+        self.instrumentButton.setGeometry(QRect(0, 5, 75, 75))
+        self.instrumentButton.setStyleSheet("""
+            .QPushButton {
+                    width: 20px;
+                    height: 20px;
+                    border-style: outset;
+                    border-width: 2px;
+                    border-radius: 10px;
+                    border-color: beige;
+                    padding: 15px;
+                    background-color: rgb(255, 255, 111);
+                    image: url('view/Icons/instrument/plug.svg');
+                } """)  
+        self.instrumentButton.clicked.connect(self.bindInstrument)
+
+
+
+    def bindInstrument(self):
         '''
             Set the instrument of track
 
@@ -88,9 +65,18 @@ class TrackView(QWidget):
                 instID, int type, id of the instrument
 
         '''
+        if not self.instc.getCurInstID():
+            warnDialog = QDialog(self)
+            warnLabel = QLabel('Please select an instrument first !', warnDialog)
+            warnLabel.move(100, 100)
+            warnDialog.setWindowTitle("Alert")
+            warnDialog.resize(500, 200)
+            warnDialog.setWindowModality(Qt.ApplicationModal)
+            warnDialog.exec_()
+        else:
+            self.trackController.setTrackInst(self.trackID, self.instc.getCurInstID())
+            self.instrumentButton.setStyleSheet(self.instc.getCurInstStyle())
 
-        self.instrumentButton.setIcon(icon)
-        self.trackController.curFile.getTrack(self.trackID).setInst(instID)
         
 
 
@@ -100,14 +86,13 @@ class TrackView(QWidget):
 
         '''
         self.volume = QPushButton('', self)
-        self.volume.setMinimumSize(30, 30)
+        self.volume.setGeometry(QRect(0, 85, 20, 20))
         self.volume.setIcon(QIcon('view/Icons/volume/midVolume.svg'))
         self.currentVIcon = QIcon('view/Icons/volume/midVolume.svg')
         self.volume.clicked.connect(self.muteTrack)
 
-        # 音量滑动条
         self.vAdjuster = QSlider(Qt.Horizontal, self)
-        self.vAdjuster.setMinimumSize(50, 30)
+        self.vAdjuster.setGeometry(QRect(25, 85, 50, 20))
         self.vAdjuster.setMaximum(100)
         self.vAdjuster.setValue(50)
         self.vAdjuster.valueChanged[int].connect(self.changeValue)
@@ -166,12 +151,70 @@ class TrackView(QWidget):
 
         '''
         self.trackController.setCurTrack(self.trackID)
-        self.sheet.setPlainText(self.trackController.curTrack.demoNotes)
+        self.updateSheet()
+        print('Track {0} selected !'.format(self.trackID))
+
+    def updateSheet(self):
+        # TODO
+        pass
 
     def deleteTrack(self):
         ''''
             Delete a track
 
         '''
-        pass
+        self.deleteLater()
+        
+
+
+
+
+class TrackContainer(QWidget):
+    def __init__(self, mc, sheet, instc):
+        super().__init__()
+        self.mc = mc
+        self.sheet = sheet
+        self.instc = instc
+        self.tracklist = {}
+        self.init()
+        self.initUI()
+
+    def init(self):
+        for i in range(4):
+            trackID = self.mc.addTrack(inst=0, vel=80)
+            self.tracklist[trackID] = TrackView(self.mc, trackID, self.sheet, self.instc)
+
+
+    def initUI(self):
+        trackRegion = QWidget()
+        self.trackLayout = QVBoxLayout()
+        for trackID, track in self.tracklist.items():
+            self.trackLayout.addWidget(track)
+        self.trackLayout.addStretch(0)
+        trackRegion.setLayout(self.trackLayout)
+        self.trackScroll = QScrollArea()
+        self.trackScroll.setWidget(trackRegion)
+        self.trackScroll.setFixedHeight(300)
+
+    def updateUI(self):
+        trackRegion = QWidget()
+        trackRegion.setLayout(self.trackLayout)
+        self.trackScroll.setWidget(trackRegion)
+
+    def delTrack(self):
+        trackID = self.mc.getCurTrackID()
+        self.mc.delTrack(trackID)
+        self.tracklist[trackID].deleteTrack()
+        self.trackLayout.removeWidget(self.tracklist[trackID])
+        del self.tracklist[trackID]
+
+        self.updateUI()
+
+        print("Track {0} is deleted !".format(trackID))
+
+    def addTrack(self):
+        trackID = self.mc.addTrack(inst=0, vel=80)
+        self.tracklist[trackID] = TrackView(self.mc, trackID, self.sheet, self.instc)
+        self.trackLayout.insertWidget(self.trackLayout.count()-1, self.tracklist[trackID])
+        self.updateUI()
 
