@@ -110,10 +110,10 @@ class MainView_Demo(QtWidgets.QMainWindow):
 
     # 全局播放
     def playAll(self):
-        self.mc.playAllDemo()
+        self.mc.playAll()
 
     def pauseAll(self):
-        self.mc.pauseAllDemo()
+        self.mc.pauseAll()
 
     def closeEvent(self, event):
         reply = QtWidgets.QMessageBox.question(

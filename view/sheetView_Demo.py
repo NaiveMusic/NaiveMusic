@@ -5,6 +5,8 @@ from PyQt5.QtGui import QGuiApplication
 from controller.mainController import MainController
 import sys
 
+from model.const import *
+
 
 class SheetView_Demo(QtWidgets.QWidget):
     def __init__(self, mc):
@@ -118,7 +120,8 @@ class SheetView_Demo(QtWidgets.QWidget):
 
         def setNote(row, col):
             noteName = 'Note_' + str(row) + '_' + str(col)
-            self.noteDict[noteName] = NMPushButton(row, col, self.noteDict)
+            self.noteDict[noteName] = NMPushButton(row, col, self.noteDict,
+                                                   self.mc)
             sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
                                                QtWidgets.QSizePolicy.Minimum)
             sizePolicy.setHorizontalStretch(0)
@@ -225,8 +228,9 @@ class SheetView_Demo(QtWidgets.QWidget):
 
 
 class NMPushButton(QtWidgets.QPushButton):
-    def __init__(self, row, col, noteDict):
+    def __init__(self, row, col, noteDict, mc):
         super().__init__()
+        self.mc = mc
         # note坐标，以左上角为(1,1)
         self.row = row
         self.col = col
@@ -242,30 +246,50 @@ class NMPushButton(QtWidgets.QPushButton):
             self.setChecked(True)
             print(self.objectName() + ': ' +
                   "on" if self.isChecked() else "off")
+            # add note
+            data = self.objectName().split('_')
+            key = 73 - int(data[1])
+            on = int(data[2]) * DELTA
+            off = on + DELTA
+            self.mc.addNote(key=key, vel=100, on=on, off=off)
         elif QMouseEvent.button() == QtCore.Qt.RightButton:
             if self.startFrom == 0:
                 self.setChecked(False)
                 print(self.objectName() + ': ' +
                       ("on" if self.isChecked() else "off"))
+                # delete note
+                data = self.objectName().split('_')
+                key = 73 - int(data[1])
+                on = int(data[2]) * DELTA
+                off = on + DELTA
+                self.mc.delNote(key=key, on=on, off=off)
             else:
                 # 向右删除
                 i = self.col
                 while True:
                     i = i + 1
-                    if self.noteDict['Note_' + str(self.row) + '_' + str(i)].startFrom != self.startFrom:
+                    if self.noteDict['Note_' + str(self.row) + '_' +
+                                     str(i)].startFrom != self.startFrom:
                         break
-                    self.noteDict['Note_' + str(self.row) + '_' + str(i)].setChecked(False)
-                    self.noteDict['Note_' + str(self.row) + '_' + str(i)].startFrom = 0
-                    self.noteDict['Note_' + str(self.row) + '_' + str(i)].applyStyle()
+                    self.noteDict['Note_' + str(self.row) + '_' +
+                                  str(i)].setChecked(False)
+                    self.noteDict['Note_' + str(self.row) + '_' +
+                                  str(i)].startFrom = 0
+                    self.noteDict['Note_' + str(self.row) + '_' +
+                                  str(i)].applyStyle()
                 # 向左删除
                 i = self.col
                 while True:
                     i = i - 1
-                    if self.noteDict['Note_' + str(self.row) + '_' + str(i)].startFrom != self.startFrom:
+                    if self.noteDict['Note_' + str(self.row) + '_' +
+                                     str(i)].startFrom != self.startFrom:
                         break
-                    self.noteDict['Note_' + str(self.row) + '_' + str(i)].setChecked(False)
-                    self.noteDict['Note_' + str(self.row) + '_' + str(i)].startFrom = 0
-                    self.noteDict['Note_' + str(self.row) + '_' + str(i)].applyStyle()
+                    self.noteDict['Note_' + str(self.row) + '_' +
+                                  str(i)].setChecked(False)
+                    self.noteDict['Note_' + str(self.row) + '_' +
+                                  str(i)].startFrom = 0
+                    self.noteDict['Note_' + str(self.row) + '_' +
+                                  str(i)].applyStyle()
                 self.setChecked(False)
                 self.startFrom = 0
                 self.applyStyle()
