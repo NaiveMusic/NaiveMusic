@@ -197,6 +197,10 @@ class TrackContainer(QWidget):
         self.trackScroll = QScrollArea()
         self.trackScroll.setWidget(QWidget())
         self.trackScroll.setFixedHeight(300)
+        self.trackScroll.setStyleSheet("""
+            .QScrollArea {
+                background-color: transparent;
+            }""")
 
     def update(self):
         self.tracklist = {}
