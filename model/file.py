@@ -26,12 +26,7 @@ class File():
         for i, track in enumerate(self.tracks.values()):
             midiTrack = track.toMidi(bpm=self.bpm, channel=i, save=False)
             mid.tracks.append(midiTrack)
-        self.buf = BytesIO()
-        if export:
-            mid.save('output.mid')
-        else:
-            mid.save(file=self.buf)
-        return mid.length
+        return mid
 
     def midiToFile(self, file='output.mid'):
         mid = MidiFile(file)
@@ -64,11 +59,11 @@ class File():
                 if not msg.is_meta:
                     curTime += msg.time
 
-    def toDemoMidi(self):
-        mid = MidiFile()
-        for i, track in enumerate(self.tracks.values()):
-            midiTrack = track.toDemoMidi(bpm=self.bpm, channel=i, save=False)
-            mid.tracks.append(midiTrack)
-        self.buf = BytesIO()
-        mid.save(file=self.buf)
-        return mid.length
+    # def toDemoMidi(self):
+    #     mid = MidiFile()
+    #     for i, track in enumerate(self.tracks.values()):
+    #         midiTrack = track.toDemoMidi(bpm=self.bpm, channel=i, save=False)
+    #         mid.tracks.append(midiTrack)
+    #     self.buf = BytesIO()
+    #     mid.save(file=self.buf)
+    #     return mid.length

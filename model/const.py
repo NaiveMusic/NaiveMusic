@@ -3,23 +3,22 @@ from enum import Enum
 MAX_TRACK_NUM = 16
 
 # for note and track
-DEFAULT_VEL=100
+DEFAULT_VEL = 100
 
 # for track
-DEFAULT_INST=0
+DEFAULT_INST = 0
 
 # for file
-DEFAULT_BPM=120
-
+DEFAULT_BPM = 120
 
 # TICKS_PER_BEAT
 DELTA = 480
 
-KEY_RANGE = range(0,128)
+KEY_RANGE = range(0, 128)
 
-VEL_RANGE = range(0,128)
+VEL_RANGE = range(0, 128)
 
-STATE = Enum('STATE',('DEFAULT','PLAYING','PAUSING','EDITING','SELECTING','CLOSED'))
+STATE = Enum('STATE', ('DEFAULT', 'PLAYING', 'PAUSING', 'EDITING', 'SELECTING'))
 
 INSTRUMENT = {
     0: 'Stereo Grand',
