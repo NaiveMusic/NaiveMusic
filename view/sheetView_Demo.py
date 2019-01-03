@@ -268,6 +268,9 @@ class NMPushButton(QtWidgets.QPushButton):
                 i = self.col
                 while True:
                     i = i + 1
+                    if ('Note_' + str(self.row) + '_' +
+                            str(i)) not in self.noteDict.keys():
+                        break
                     if self.noteDict['Note_' + str(self.row) + '_' +
                                      str(i)].startFrom != self.startFrom:
                         break
@@ -281,6 +284,9 @@ class NMPushButton(QtWidgets.QPushButton):
                 i = self.col
                 while True:
                     i = i - 1
+                    if ('Note_' + str(self.row) + '_' +
+                            str(i)) not in self.noteDict.keys():
+                        break
                     if self.noteDict['Note_' + str(self.row) + '_' +
                                      str(i)].startFrom != self.startFrom:
                         break
