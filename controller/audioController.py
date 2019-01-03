@@ -2,7 +2,6 @@ import os
 import wave
 import time
 import subprocess
-import numpy as np
 from ctypes import *
 from ctypes.util import find_library
 from io import BytesIO
@@ -17,7 +16,7 @@ class AudioController(BaseController):
     def __init__(self):
         os.chdir('./lib/fluidsynth')
         if os.sys.platform.startswith('win'):
-            lib = windll.LoadLibrary('./libfluidsynth-2.dll')
+            lib = windll.LoadLibrary('libfluidsynth-2.dll')
         elif os.sys.platform.startswith('linux'):
             raise NotImplementedError('TODO')
         elif os.sys.platform.startswith('darwin'):
@@ -94,7 +93,7 @@ class AudioController(BaseController):
         length = int(44100 * length)
         buf = create_string_buffer(length * 4)
         self._fluid_synth_write_s16(self._synth, length, buf, 0, 2, buf, 1, 2)
-        sample = np.frombuffer(buf, dtype=np.int16).tobytes()
+        sample = buf.raw
 
         self._fluid_player_stop(player)
         self._fluid_player_join(player)

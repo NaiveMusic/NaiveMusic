@@ -18,7 +18,7 @@ class MainController(SheetController, AudioController):
         AudioController.__init__(self)
         self.newFile()
         self._selectedInst = None
-        self._state = STATE.DEFAULT
+        self._state = STATE.EDITING
 
     # Track part
     def getTrack(self, trackID):

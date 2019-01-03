@@ -69,12 +69,12 @@ class SheetController(BaseController):
         if self._state not in [STATE.EDITING, STATE.PAUSING]:
             return
 
-        vel = options.get('vel', DAFUALT_VEL)
+        vel = options.get('vel', DEFAULT_VEL)
         on = options.get('on', self._curPos)
         off = options.get('off', self._curPos+1)
 
         if not self.isOccupied(key, self._toTick(on), self._toTick(off)):
-            self._curTrack.addNote(key, vel, self._toTick(on), self._toTicks(off))
+            self._curTrack.addNote(key, vel, self._toTick(on), self._toTick(off))
             self._curPos = off
         else:
             pass
