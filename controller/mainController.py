@@ -14,7 +14,7 @@ class MainController(SheetController, AudioController):
     def __init__(self):
         SheetController.__init__(self)
         AudioController.__init__(self)
-        self._curFile = File(bpm=120)
+        self.newFile()
         self._selectedInst = None
         self._state = STATE.DEFAULT
 
@@ -59,6 +59,9 @@ class MainController(SheetController, AudioController):
         self.notify()
 
     # File part
+    def getTracksID(self):
+        return self._curFile.tracks.keys()
+
     def setBPM(self, bpm):
         if not isinstance(bpm, int) or bpm < 0 or bpm > 200:
             raise ValueError('bmp must be int within 0~200, not {}'.format(bpm))
@@ -67,13 +70,19 @@ class MainController(SheetController, AudioController):
     def getBPM(self):
         return self._curFile.bpm
 
+    def newFile(self):
+        self._curFile = File(bpm=DEFAULT_BPM)
+
     def saveFile(self, fileName='temp.nm'):
-        # TODO: use serialization
         pickle.dump(self._curFile, fileName)
         return
 
     def loadFile(self, fileName='temp.nm'):
-        self._curFile = pickle.load(fileName)
+        try:
+            self._curFile = pickle.load(fileName)
+        except:
+            print('filename not exists!')
+        self.notify()
 
     # Selection part
     def getSelectedInst(self):
