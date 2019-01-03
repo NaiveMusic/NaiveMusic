@@ -2,6 +2,8 @@ from enum import Enum
 
 MAX_TRACK_NUM = 16
 
+KEY_TOP = 108
+
 # TICKS_PER_BEAT
 DELTA = 480
 

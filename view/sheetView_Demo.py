@@ -14,6 +14,8 @@ class SheetView_Demo(QtWidgets.QWidget):
         self.mc = mc
         self.setupUi(self)
         self.initPianoRoll()
+        self.ROWMAX = 0
+        self.COLMAX = 0
 
     # PianoRoll
     def initPianoRoll(self):
@@ -30,14 +32,14 @@ class SheetView_Demo(QtWidgets.QWidget):
 
         # Change below
         print(sender.objectName())
-        key=sender.objectName().split('_')[1]
-        self.mc.playSingle(73-int(key))
+        key = sender.objectName().split('_')[1]
+        self.mc.playSingle(KEY_TOP - int(key))
         # Change above
 
     def setupUi(self, MainWindow):
         # Note 个数
-        ROWMAX = 13
-        COLMAX = 17
+        self.ROWMAX = 13
+        self.COLMAX = 50
 
         # sheetSection: PianoRoll, Sheet, Velocity
         self.SheetSection = QtWidgets.QHBoxLayout()
@@ -82,6 +84,7 @@ class SheetView_Demo(QtWidgets.QWidget):
                 self.keyDict[keyName].sizePolicy().hasHeightForWidth())
             self.keyDict[keyName].setSizePolicy(sizePolicy)
             self.keyDict[keyName].setMaximumSize(QtCore.QSize(175, 75))
+            self.keyDict[keyName].setMinimumSize(QtCore.QSize(120, 35))
             if (keyType == 'main'):
                 self.keyDict[keyName].setStyleSheet(
                     "QPushButton:!pressed { background-color: rgb(255, 255, 255); }\n"
@@ -110,7 +113,14 @@ class SheetView_Demo(QtWidgets.QWidget):
         setKey('main', 2, 11)
         setKey('black', 1, 12)
         setKey('main', 1, 13)
-        self.SheetSection.addLayout(self.PianoRoll)
+
+        self.pianoBoardWidget = QtWidgets.QWidget()
+        self.pianoBoardWidget.setLayout(self.PianoRoll)
+        self.pianoScroll = QtWidgets.QScrollArea()
+        self.pianoScroll.setWidget(self.pianoBoardWidget)
+        self.pianoScroll.setMinimumHeight(350)
+        self.pianoScroll.setFixedWidth(160)
+        self.SheetSection.addWidget(self.pianoScroll)
 
         # Sheet
         self.Sheet = QtWidgets.QGridLayout()
@@ -131,6 +141,8 @@ class SheetView_Demo(QtWidgets.QWidget):
             sizePolicy.setHeightForWidth(
                 self.noteDict[noteName].sizePolicy().hasHeightForWidth())
             self.noteDict[noteName].setSizePolicy(sizePolicy)
+            self.noteDict[noteName].setMaximumSize(QtCore.QSize(75, 75))
+            self.noteDict[noteName].setMinimumSize(QtCore.QSize(35, 35))
             self.noteDict[noteName].setStyleSheet(
                 "QPushButton:!hover:!checked { border-image: url('view/Icons/sheet/noCheck.png'); }\n"
                 "QPushButton:!hover:checked { border-image: url('view/Icons/sheet/checked.png') }\n"
@@ -142,9 +154,9 @@ class SheetView_Demo(QtWidgets.QWidget):
             self.noteDict[noteName].setObjectName(noteName)
             self.Sheet.addWidget(self.noteDict[noteName], row, col - 1, 1, 1)
 
-        row = ROWMAX
+        row = self.ROWMAX
         while row > 0:
-            col = COLMAX
+            col = self.COLMAX
             while col > 0:
                 setNote(row, col)
                 col = col - 1
@@ -172,11 +184,26 @@ class SheetView_Demo(QtWidgets.QWidget):
             self.Sheet.addWidget(self.measureDict[measureName], 0,
                                  (num - 1) * 4, 1, 1)
 
-        measureNum = COLMAX // 4 + 1
+        measureNum = self.COLMAX // 4 + 1
         while measureNum > 0:
             setMeasure(measureNum)
             measureNum = measureNum - 1
-        self.SheetSection.addLayout(self.Sheet)
+        self.sheetBoardWidget = QtWidgets.QWidget()
+        self.sheetBoardWidget.setLayout(self.Sheet)
+        self.sheetScroll = QtWidgets.QScrollArea()
+        self.sheetScroll.setWidget(self.sheetBoardWidget)
+        self.SheetSection.addWidget(self.sheetScroll)
+
+        # 同步滚动
+        self.pianoScroll.verticalScrollBar().valueChanged.connect(
+            self.sheetScroll.verticalScrollBar().setValue)
+        self.sheetScroll.verticalScrollBar().valueChanged.connect(
+            self.pianoScroll.verticalScrollBar().setValue)
+        # 滚动条消隐
+        self.pianoScroll.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOff)
+        self.sheetScroll.setHorizontalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOff)
 
         # Velocity
         self.Velocity = QtWidgets.QGridLayout()
@@ -220,6 +247,18 @@ class SheetView_Demo(QtWidgets.QWidget):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+    def update(self):
+        noteInfoList = self.mc.getNotesInfo(
+            keys=KEY_RANGE, on=0, off=self.COLMAX)
+        for noteInfo in noteInfoList:
+            # 单音绘制
+            if noteInfo['On'] == noteInfo['Off'] - 1:
+                self.noteDict['Note_' + str(noteInfo['On']) + '_' + str(i)]
+
+            # 长音绘制
+            else:
+                pass
+
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
 
@@ -250,9 +289,9 @@ class NMPushButton(QtWidgets.QPushButton):
                   "on" if self.isChecked() else "off")
             # add note
             data = self.objectName().split('_')
-            key = 73 - int(data[1])
-            on = int(data[2]) * DELTA
-            off = on + DELTA
+            key = KEY_TOP - int(data[1])
+            on = int(data[2])
+            off = on + 1
             self.mc.addNote(key=key, vel=100, on=on, off=off)
         elif QMouseEvent.button() == QtCore.Qt.RightButton:
             if self.startFrom == 0:
@@ -261,9 +300,9 @@ class NMPushButton(QtWidgets.QPushButton):
                       ("on" if self.isChecked() else "off"))
                 # delete note
                 data = self.objectName().split('_')
-                key = 73 - int(data[1])
-                on = int(data[2]) * DELTA
-                off = on + DELTA
+                key = KEY_TOP - int(data[1])
+                on = int(data[2])
+                off = on + 1
                 self.mc.delNote(key=key, on=on, off=off)
             else:
                 # 向右删除
