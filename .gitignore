@@ -20,3 +20,12 @@ tmp.mid
 
 # .DS_Store
 .DS_Store
+
+# build files
+build/
+dist/
+
+
+
+
+
