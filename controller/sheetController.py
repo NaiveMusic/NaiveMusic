@@ -54,7 +54,7 @@ class SheetController(BaseController):
             key (int): The 'key' property of the note
 
         Keyword Args:
-            vel (int): The velocity property of the note. Defaults to curTrack.defaultVel.
+            vel (int): The velocity property of the note. Defaults to DAFUALT_VEL.
             on (int): The start time of the note. Defaults to _curPos.
             off (int): The end time of the note. Dafaults to _curPos+1.
 
@@ -65,11 +65,12 @@ class SheetController(BaseController):
         if self._state not in [STATE.EDITING, STATE.PAUSING]:
             return
 
-        vel = options.get('vel', self._curTrack.vel)
+        vel = options.get('vel', DAFUALT_VEL)
         on = options.get('on', self._curPos)
         off = options.get('off', self._curPos+1)
-        if not self.isOccupied(key,on,off):
-            self._curTrack.addNote(key, vel, on, off)
+
+        if not self.isOccupied(key, self._toTick(on), self._toTick(off)):
+            self._curTrack.addNote(key, vel, self._toTick(on), self._toTicks(off))
             self._curPos = off
         else:
             pass
@@ -100,7 +101,7 @@ class SheetController(BaseController):
         on = options.get('on', self._curPos-1)
         off = options.get('off', self._curPos)
 
-        delNoteIDList = self._curTrack.search(keys, on, off)
+        delNoteIDList = self._curTrack.search(keys, self._toTick(on), self._toTick(off))
         for noteID in delNoteIDList:
             self._curTrack.delNote(noteID)        
         self._curPos = on
@@ -120,7 +121,7 @@ class SheetController(BaseController):
         if self._state not in [STATE.EDITING, STATE.SELECTING, STATE.PAUSING]:
             return
 
-        self._selectedNoteIDList = self._curTrack.search(on, off)
+        self._selectedNoteIDList = self._curTrack.search(self._toTick(on), self._toTick(off))
         self._selectedKey = key
         self._selectedOn = on
         self._selectedOff = off
@@ -174,8 +175,8 @@ class SheetController(BaseController):
             noteInfo = {}
             noteInfo['Key'] = note.key - self._selectedKey
             noteInfo['Velocity'] = note.vel
-            noteInfo['On'] = note.on - self._selectedOn
-            noteInfo['Off'] = note.off - self._selectedOn
+            noteInfo['On'] = self._toSec(note.on) - self._selectedOn
+            noteInfo['Off'] = self._toSec(note.off) - self._selectedOn
             self._copiedNoteList.append(noteInfo)
 
         self._state = STATE.SELECTING
@@ -195,7 +196,7 @@ class SheetController(BaseController):
             _vel = noteInfo['Vel']
             _on = noteInfo['On'] + self._curPos
             _off = noteInfo['Off'] + self._curPos
-            self._curTrack.addNote(key=_key, vel=_vel, on=_on, off=_off)
+            self._curTrack.addNote(key=_key, vel=_vel, on=self._toTick(_on), off=self._toTick(_off))
             self._curPos = _off
         
         self._state = STATE.EDITING
@@ -204,7 +205,7 @@ class SheetController(BaseController):
     def isOccupied(self, key, on, off):
         """ Examine if the queried position is already occupied.
         """
-        if len(self.getNotesInfo(keys=[key],on=on,off=off)) > 0:
+        if len(self.getNotesInfo(keys=[key],on=self._toTick(on),off=self._toTick(off))) > 0:
             return True
         else:
             return False
@@ -255,14 +256,14 @@ class SheetController(BaseController):
             Notes are not neccessarily contained in the area.
         """
         noteInfoList = []
-        noteIDList = self._curTrack.search(on=on, off=off, keys = keys)
+        noteIDList = self._curTrack.search(on=self._toTick(on), off=self._toTick(off), keys = keys)
         for noteID in noteIDList:
             note = self._curTrack.getNote(noteID)
             noteInfo = {}
             noteInfo['Key'] = note.key
             noteInfo['Velocity'] = note.vel
-            noteInfo['On'] = note.on
-            noteInfo['Off'] = note.off
+            noteInfo['On'] = self._toSec(note.on)
+            noteInfo['Off'] = self._toSec(note.off)
             noteInfoList.append(noteInfo)
         return noteInfoList
 
@@ -292,7 +293,13 @@ class SheetController(BaseController):
             noteInfo = {}
             noteInfo['Key'] = note.key
             noteInfo['Velocity'] = note.vel
-            noteInfo['On'] = note.on
-            noteInfo['Off'] = note.off
+            noteInfo['On'] = self._toSec(note.on)
+            noteInfo['Off'] = self._toSec(note.off)
             noteInfoList.append(noteInfo)
         return noteInfoList
+
+    def _toTick(self, sec):
+        return sec * DELTA
+
+    def _toSec(self, tick):
+        return round(tick / float(DELTA))
