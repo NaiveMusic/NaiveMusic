@@ -1,7 +1,7 @@
 from io import BytesIO
 
-from .note import Note
-from .const import *
+from model.note import Note
+from model.const import *
 from lib.mido import Message, MidiFile, MidiTrack, bpm2tempo, MetaMessage
 
 
@@ -89,6 +89,8 @@ class Track():
                 track.append(
                     Message('note_off', channel=channel, note=note['key'], velocity=0, time=note['time'] - last))
             last = note['time']
+        track.append(Message('note_on', channel=0, note=60, velocity=0, time=0))
+        track.append(Message('note_off', channel=0, note=60, velocity=0, time=DELTA))
 
         if save:
             self.buf = BytesIO()

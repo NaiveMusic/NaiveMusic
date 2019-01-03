@@ -1,5 +1,6 @@
 import sys
 import pickle
+
 from model.note import Note
 from model.file import File
 from model.track import Track
@@ -13,7 +14,7 @@ class MainController(SheetController, AudioController):
     def __init__(self):
         SheetController.__init__(self)
         AudioController.__init__(self)
-        self._curFile = File(bpm=120)
+        self.newFile()
         self._selectedInst = None
         self._state = STATE.DEFAULT
 
@@ -58,6 +59,9 @@ class MainController(SheetController, AudioController):
         self.notify()
 
     # File part
+    def getTracksID(self):
+        return self._curFile.tracks.keys()
+
     def setBPM(self, bpm):
         if not isinstance(bpm, int) or bpm < 0 or bpm > 200:
             raise ValueError('bmp must be int within 0~200, not {}'.format(bpm))
@@ -66,21 +70,34 @@ class MainController(SheetController, AudioController):
     def getBPM(self):
         return self._curFile.bpm
 
-    def saveFile(self):
-        # TODO: use serialization
+    def newFile(self):
+        self._curFile = File(bpm=DEFAULT_BPM)
+
+    def saveFile(self, fileName='temp.nm'):
+        pickle.dump(self._curFile, fileName)
         return
+
+    def loadFile(self, fileName='temp.nm'):
+        try:
+            self._curFile = pickle.load(fileName)
+        except:
+            print('filename not exists!')
+        self.notify()
 
     # Selection part
     def getSelectedInst(self):
         return self._selectedInst
-    
-    def setSelectedInst(self,inst):
+
+    def setSelectedInst(self, inst):
         self._selectedInst = inst
 
     # Play part
     def playAll(self):
         self.length = self._curFile.toMidi()
         self._play(self._curFile.buf, self.length, True)
+
+    def playSingle(self,key):
+        self._playSingle(self._curTrack.inst,key)
 
     def pauseAll(self):
         self._pause()

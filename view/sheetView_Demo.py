@@ -3,10 +3,10 @@
 from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtGui import QGuiApplication
 from controller.mainController import MainController
-import view.sheet.pictures_rc
 import sys
 
 from model.const import *
+
 
 class SheetView_Demo(QtWidgets.QWidget):
     def __init__(self, mc):
@@ -30,6 +30,8 @@ class SheetView_Demo(QtWidgets.QWidget):
 
         # Change below
         print(sender.objectName())
+        key=sender.objectName().split('_')[1]
+        self.mc.playSingle(73-int(key))
         # Change above
 
     def setupUi(self, MainWindow):
@@ -70,7 +72,7 @@ class SheetView_Demo(QtWidgets.QWidget):
         # keyNum: 音高
         # place: 从上到下的位置
         def setKey(keyType, keyNum, place):
-            keyName = str(keyType) + "Key_" + str(keyNum)
+            keyName = str(keyType) + "Key_" + str(place)
             self.keyDict[keyName] = QtWidgets.QPushButton(self)
             sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
                                                QtWidgets.QSizePolicy.Minimum)
@@ -120,7 +122,8 @@ class SheetView_Demo(QtWidgets.QWidget):
 
         def setNote(row, col):
             noteName = 'Note_' + str(row) + '_' + str(col)
-            self.noteDict[noteName] = NMPushButton(row, col,self.mc)
+            self.noteDict[noteName] = NMPushButton(row, col, self.noteDict,
+                                                   self.mc)
             sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Minimum,
                                                QtWidgets.QSizePolicy.Minimum)
             sizePolicy.setHorizontalStretch(0)
@@ -129,10 +132,10 @@ class SheetView_Demo(QtWidgets.QWidget):
                 self.noteDict[noteName].sizePolicy().hasHeightForWidth())
             self.noteDict[noteName].setSizePolicy(sizePolicy)
             self.noteDict[noteName].setStyleSheet(
-                "QPushButton:!hover:!checked { border-image: url(:/sheet/src/sheet/noCheck.png); }\n"
-                "QPushButton:!hover:checked { border-image: url(:/sheet/src/sheet/checked.png) }\n"
-                "QPushButton:!checked:pressed, QPushButton:hover:checked:!pressed { border-image: url(:/sheet/src/sheet/checked_hover.png) }\n"
-                "QPushButton:checked:pressed, QPushButton:hover:!checked:!pressed { border-image: url(:/sheet/src/sheet/noCheck_hover.png); }"
+                "QPushButton:!hover:!checked { border-image: url('view/Icons/sheet/noCheck.png'); }\n"
+                "QPushButton:!hover:checked { border-image: url('view/Icons/sheet/checked.png') }\n"
+                "QPushButton:hover:checked { border-image: url('view/Icons/sheet/checked_hover.png') }\n"
+                "QPushButton:hover:!checked { border-image: url('view/Icons/sheet/noCheck_hover.png'); }"
             )
             self.noteDict[noteName].setText("")
             self.noteDict[noteName].setCheckable(True)
@@ -227,49 +230,184 @@ class SheetView_Demo(QtWidgets.QWidget):
 
 
 class NMPushButton(QtWidgets.QPushButton):
-    def __init__(self, row, col,mc):
+    def __init__(self, row, col, noteDict, mc):
         super().__init__()
-        self.setAcceptDrops(True)
+        self.mc = mc
+        # note坐标，以左上角为(1,1)
         self.row = row
         self.col = col
-        self.mc=mc
+        # 传入noteDict，使得每个note都能操作其他note
+        self.noteDict = noteDict
+        # 长note起点列号，为0则不是长note
+        self.startFrom = 0
+        self.setAcceptDrops(True)
 
     # 重载点击事件
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == QtCore.Qt.LeftButton:
             self.setChecked(True)
             print(self.objectName() + ': ' +
-                  ("on" if self.isChecked() else "off"))
+                  "on" if self.isChecked() else "off")
             # add note
-            data=self.objectName().split('_')
-            key=73-int(data[1])
-            on=int(data[2])*DELTA
-            off=on+DELTA
-            self.mc.addNote(key=key,vel=100,on=on,off=off)
-
+            data = self.objectName().split('_')
+            key = 73 - int(data[1])
+            on = int(data[2]) * DELTA
+            off = on + DELTA
+            self.mc.addNote(key=key, vel=100, on=on, off=off)
         elif QMouseEvent.button() == QtCore.Qt.RightButton:
-            self.setChecked(False)
-            print(self.objectName() + ': ' +
-                  ("on" if self.isChecked() else "off"))
-            # delete note
-            data=self.objectName().split('_')
-            key=73-int(data[1])
-            on=int(data[2])*DELTA
-            off=on+DELTA
-            self.mc.delNote(key=key,on=on,off=off)
+            if self.startFrom == 0:
+                self.setChecked(False)
+                print(self.objectName() + ': ' +
+                      ("on" if self.isChecked() else "off"))
+                # delete note
+                data = self.objectName().split('_')
+                key = 73 - int(data[1])
+                on = int(data[2]) * DELTA
+                off = on + DELTA
+                self.mc.delNote(key=key, on=on, off=off)
+            else:
+                # 向右删除
+                i = self.col
+                while True:
+                    i = i + 1
+                    if ('Note_' + str(self.row) + '_' +
+                            str(i)) not in self.noteDict.keys():
+                        break
+                    if self.noteDict['Note_' + str(self.row) + '_' +
+                                     str(i)].startFrom != self.startFrom:
+                        break
+                    self.noteDict['Note_' + str(self.row) + '_' +
+                                  str(i)].setChecked(False)
+                    self.noteDict['Note_' + str(self.row) + '_' +
+                                  str(i)].startFrom = 0
+                    self.noteDict['Note_' + str(self.row) + '_' +
+                                  str(i)].applyStyle()
+                # 向左删除
+                i = self.col
+                while True:
+                    i = i - 1
+                    if ('Note_' + str(self.row) + '_' +
+                            str(i)) not in self.noteDict.keys():
+                        break
+                    if self.noteDict['Note_' + str(self.row) + '_' +
+                                     str(i)].startFrom != self.startFrom:
+                        break
+                    self.noteDict['Note_' + str(self.row) + '_' +
+                                  str(i)].setChecked(False)
+                    self.noteDict['Note_' + str(self.row) + '_' +
+                                  str(i)].startFrom = 0
+                    self.noteDict['Note_' + str(self.row) + '_' +
+                                  str(i)].applyStyle()
+                self.setChecked(False)
+                self.startFrom = 0
+                self.applyStyle()
 
     def mouseMoveEvent(self, e):
         if e.buttons() != QtCore.Qt.LeftButton:
             return
         mimeData = QtCore.QMimeData()
+        # 传输起点坐标名称
+        mimeData.setText(self.objectName())
         drag = QtGui.QDrag(self)
         drag.setMimeData(mimeData)
         dropAction = drag.exec_(QtCore.Qt.MoveAction)
 
     def dragEnterEvent(self, QMouseEvent):
-        QMouseEvent.accept()
+        if QMouseEvent.mimeData().hasText():
+            QMouseEvent.accept()
+        else:
+            QMouseEvent.ignore()
+            return
+        # 拖动的起始行列号
+        startRow = self.noteDict[QMouseEvent.mimeData().text()].row
+        startCol = self.noteDict[QMouseEvent.mimeData().text()].col
+        # 列内拖动
+        if self.col == startCol:
+            if ('Note_' + str(startRow) + '_' +
+                    str(self.col - 1)) in self.noteDict.keys():
+                if self.noteDict['Note_' + str(startRow) + '_' +
+                                 str(self.col - 1)].startFrom == startCol:
+                    self.noteDict['Note_' + str(startRow) + '_' +
+                                  str(self.col - 1)].setChecked(False)
+                    self.noteDict['Note_' + str(startRow) + '_' +
+                                  str(self.col - 1)].startFrom = 0
+                    self.noteDict['Note_' + str(startRow) + '_' +
+                                  str(self.col - 1)].applyStyle()
+            if ('Note_' + str(startRow) + '_' +
+                    str(self.col + 1)) in self.noteDict.keys():
+                if self.noteDict['Note_' + str(startRow) + '_' +
+                                 str(self.col + 1)].startFrom == startCol:
+                    self.noteDict['Note_' + str(startRow) + '_' +
+                                  str(self.col + 1)].setChecked(False)
+                    self.noteDict['Note_' + str(startRow) + '_' +
+                                  str(self.col + 1)].startFrom = 0
+                    self.noteDict['Note_' + str(startRow) + '_' +
+                                  str(self.col + 1)].applyStyle()
+            return
+        # 目前对应列行内的note
+        endingNote = self.noteDict['Note_' + str(startRow) + '_' + str(
+            self.col)]
+        # 行内note延长绘制
+        i = startCol
+        while i != endingNote.col:
+            self.noteDict['Note_' + str(startRow) + '_' +
+                          str(i)].setChecked(True)
+            self.noteDict['Note_' + str(startRow) + '_' +
+                          str(i)].startFrom = startCol
+            self.noteDict['Note_' + str(startRow) + '_' + str(i)].applyStyle()
+            if i < endingNote.col:
+                i = i + 1
+            else:
+                i = i - 1
+        self.noteDict['Note_' + str(startRow) + '_' + str(i)].setChecked(True)
+        self.noteDict['Note_' + str(startRow) + '_' +
+                      str(i)].startFrom = startCol
+        self.noteDict['Note_' + str(startRow) + '_' + str(i)].applyStyle()
+        # 删除回退的note
+        if endingNote.col < startCol:
+            if ('Note_' + str(startRow) + '_' +
+                    str(endingNote.col - 1)) in self.noteDict.keys():
+                preNote = self.noteDict['Note_' + str(startRow) + '_' +
+                                        str(endingNote.col - 1)]
+            else:
+                return
+        else:
+            if ('Note_' + str(startRow) + '_' +
+                    str(endingNote.col + 1)) in self.noteDict.keys():
+                preNote = self.noteDict['Note_' + str(startRow) + '_' +
+                                        str(endingNote.col + 1)]
+            else:
+                return
+        if preNote.startFrom == startCol:
+            preNote.setChecked(False)
+            preNote.startFrom = 0
+            preNote.applyStyle()
 
     def dropEvent(self, QMouseEvent):
         QMouseEvent.setDropAction(QtCore.Qt.MoveAction)
         QMouseEvent.accept()
-        self.setChecked(True)
+        startNote = self.noteDict[QMouseEvent.mimeData().text()]
+        endNote = self.noteDict['Note_' + str(startNote.row) + '_' + str(
+            self.col)]
+        if startNote.col == endNote.col:
+            startNote.startFrom = 0
+            startNote.applyStyle()
+        else:
+            print("Long note from " + QMouseEvent.mimeData().text() + " to " +
+                  endNote.objectName())
+
+    def applyStyle(self):
+        if self.startFrom == 0:
+            self.setStyleSheet(
+                "QPushButton:!hover:!checked { border-image: url('view/Icons/sheet/noCheck.png'); }\n"
+                "QPushButton:!hover:checked { border-image: url('view/Icons/sheet/checked.png') }\n"
+                "QPushButton:hover:checked { border-image: url('view/Icons/sheet/checked_hover.png') }\n"
+                "QPushButton:hover:!checked { border-image: url('view/Icons/sheet/noCheck_hover.png'); }"
+            )
+        else:
+            self.setStyleSheet(
+                "QPushButton:!hover:!checked { border-image: url('view/Icons/sheet/noCheck.png'); }\n"
+                "QPushButton:!hover:checked { border-image: url('view/Icons/sheet/long_checked.png') }\n"
+                "QPushButton:hover:checked { border-image: url('view/Icons/sheet/long_checked_hover.png') }\n"
+                "QPushButton:hover:!checked { border-image: url('view/Icons/sheet/noCheck_hover.png'); }"
+            )

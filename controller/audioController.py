@@ -1,15 +1,16 @@
 import os
+import wave
+import time
 import subprocess
 import numpy as np
 from ctypes import *
 from ctypes.util import find_library
-import wave
 from io import BytesIO
-import time
 
-from lib.pyaudio import pyaudio
-from controller.baseController import BaseController
 from model.const import *
+from controller.baseController import BaseController
+from lib.pyaudio import pyaudio
+from lib.mido import Message, MidiFile, MidiTrack, bpm2tempo, MetaMessage
 
 
 class AudioController(BaseController):
@@ -36,6 +37,8 @@ class AudioController(BaseController):
 
         self._pa = pyaudio.PyAudio()
         self._strm = self._pa.open(format=pyaudio.paInt16, channels=2, rate=44100, output=True, start=False,
+                                   stream_callback=self._callback)
+        self._strm2 = self._pa.open(format=pyaudio.paInt16, channels=2, rate=44100, output=True, start=False,
                                    stream_callback=self._callback)
 
     def __del__(self):
@@ -64,6 +67,21 @@ class AudioController(BaseController):
         if self._strm.is_active():
             self._state = STATE.PAUSING
         self._strm.stop_stream()
+
+    def _playSingle(self, inst, key):
+        track = MidiTrack()
+        track.append(Message('program_change', channel=0, program=inst, time=0))
+        track.append(Message('note_on', channel=0, note=key, velocity=100, time=0))
+        track.append(Message('note_off', channel=0, note=key, velocity=0, time=DELTA//2))
+        track.append(Message('note_on', channel=0, note=key, velocity=0, time=0))
+        track.append(Message('note_off', channel=0, note=key, velocity=0, time=DELTA//4))
+        buf = BytesIO()
+        mid = MidiFile()
+        mid.tracks.append(track)
+        mid.save(file=buf)
+        self._getSample(buf, mid.length)
+        self._strm2.stop_stream()
+        self._strm2.start_stream()
 
     def _getSample(self, buf, length):
         buf.seek(0)

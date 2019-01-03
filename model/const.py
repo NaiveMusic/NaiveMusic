@@ -3,6 +3,16 @@ import re
 
 MAX_TRACK_NUM = 16
 
+# for note and track
+DEFAULT_VEL=100
+
+# for track
+DEFAULT_INST=0
+
+# for file
+DEFAULT_BPM=120
+
+
 # TICKS_PER_BEAT
 DELTA = 480
 
