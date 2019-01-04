@@ -8,7 +8,7 @@ from model.const import *
 
 
 class InstrumentView(QWidget):
-    def __init__(self, instID, instName, mc, style="""
+    def __init__(self, instID, instName, mc, instc, style="""
             .QPushButton {
                 width: 20px;
                 height: 20px;
@@ -26,6 +26,7 @@ class InstrumentView(QWidget):
         self.instName = instName
         self.style = style
         self.mc = mc
+        self.instc = instc
         self.init()
         self.initUI()
         self.setMinimumSize(85, 85)
@@ -63,6 +64,11 @@ class InstrumentView(QWidget):
 
     def setInst(self):
         self.mc.setSelectedInst(self.instrumentID)
+        for inst in self.instc.instList.keys():
+            if self.instc.instList[inst].instrumentID == self.instrumentID:
+                self.instc.instList[inst].instrumentButton.setStyleSheet(style(INSTRUMENT[self.instrumentID], False)[0])
+            else:
+                self.instc.instList[inst].instrumentButton.setStyleSheet(style(INSTRUMENT[self.instc.instList[inst].instrumentID])[0])
         print("Instrument {0} selected !".format(self.instrumentID))
 
 
@@ -76,9 +82,9 @@ class InstrumentContainer(QWidget):
 
 
     def init(self):
-    	self.instList[1] = InstrumentView(1, INSTRUMENT[1], self.mc)
-    	self.instList[26] = InstrumentView(26, INSTRUMENT[26], self.mc)
-    	self.instList[33] = InstrumentView(33, INSTRUMENT[33], self.mc)
+    	self.instList[1] = InstrumentView(1, INSTRUMENT[1], self.mc, self)
+    	self.instList[26] = InstrumentView(26, INSTRUMENT[26], self.mc, self)
+    	self.instList[33] = InstrumentView(33, INSTRUMENT[33], self.mc, self)
         
 
     def initUI(self):
@@ -106,6 +112,9 @@ class InstrumentContainer(QWidget):
         self.instLayout.addStretch(0)
         self.setLayout(self.instLayout)
 
+
+    def getCurInstView(self):
+        return self.instList[self.mc.getSelectedInst()]
 
     def getCurInstStyle(self):
         return self.instList[self.mc.getSelectedInst()].style
