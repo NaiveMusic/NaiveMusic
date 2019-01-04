@@ -301,12 +301,6 @@ class NMPushButton(QtWidgets.QPushButton):
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == QtCore.Qt.LeftButton:
             self.setChecked(True)
-            print("[ADD] Single note: " + self.objectName())
-            # [ADD] Single note
-            key = KEY_TOP - self.row
-            on = self.col
-            off = on + 1
-            self.mc.addNote(key=key, vel=100, on=on, off=off)
         elif QMouseEvent.button() == QtCore.Qt.RightButton:
             if self.startFrom == 0:
                 self.setChecked(False)
@@ -364,6 +358,17 @@ class NMPushButton(QtWidgets.QPushButton):
                 # [Delete] Long note
                 key = KEY_TOP - self.row
                 self.mc.delNote(key=key, on=on, off=off)
+
+    def mouseReleaseEvent(self, QMouseEvent):
+        # 对拖拽事件不响应
+        if self.startFrom != 0:
+            return
+        print("[ADD] Single note: " + self.objectName())
+        # [ADD] Single note
+        key = KEY_TOP - self.row
+        on = self.col
+        off = on + 1
+        self.mc.addNote(key=key, vel=100, on=on, off=off)
 
     def mouseMoveEvent(self, e):
         if e.buttons() != QtCore.Qt.LeftButton:
@@ -455,9 +460,15 @@ class NMPushButton(QtWidgets.QPushButton):
         if startNote.col == endNote.col:
             startNote.startFrom = 0
             startNote.applyStyle()
+            print("[ADD] Single note: " + startNote.objectName())
+            # [ADD] Single note
+            key = KEY_TOP - startNote.row
+            on = startNote.col
+            off = on + 1
+            self.mc.addNote(key=key, vel=100, on=on, off=off)
         else:
             print("[ADD] Long note: from " + QMouseEvent.mimeData().text() +
-                  " to " + endNote.objectName() + ", covering last line ↑.")
+                  " to " + endNote.objectName())
             # [ADD] Long note
             key = KEY_TOP - endNote.row
             on = startNote.col
