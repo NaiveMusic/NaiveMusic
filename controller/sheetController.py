@@ -66,8 +66,8 @@ class SheetController(BaseController):
             EDITING -> EDITING
             PAUSING -> EDITING
         """
-        if self._state not in [STATE.EDITING, STATE.PAUSING]:
-            return
+        # if self._state not in [STATE.EDITING, STATE.PAUSING]:
+        #     return
 
         vel = options.get('vel', DEFAULT_VEL)
         on = options.get('on', self._curPos)
@@ -78,6 +78,7 @@ class SheetController(BaseController):
             self._curTrack.addNote(key, vel, self._toTick(on), self._toTick(off))
             self._curPos = off
         else:
+            print('fuck')
             pass
 
         self._state = STATE.EDITING
@@ -99,8 +100,8 @@ class SheetController(BaseController):
             PAUSING -> EDITING
 
         """
-        if self._state not in [STATE.EDITING, STATE.PAUSING]:
-            return
+        # if self._state not in [STATE.EDITING, STATE.PAUSING]:
+        #     return
 
         keys = options.get('keys', KEY_RANGE)
         on = options.get('on', self._curPos-1)
