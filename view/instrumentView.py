@@ -19,7 +19,6 @@ class InstrumentView(QWidget):
                 padding: 15px;
                 background-color: rgb(224, 224, 224);
                 image: url('view/Icons/instrument/default.svg');
-                
                 } """):
         super().__init__()
         self.instrumentID = instID
@@ -124,7 +123,7 @@ class InstrumentContainer(QWidget):
 
     def addInst(self):
         instID = self.instLib.currentIndex()
-        newInst = InstrumentView(instID, INSTRUMENT[instID], self.mc)
+        newInst = InstrumentView(instID, INSTRUMENT[instID], self.mc, self, style(INSTRUMENT[instID]))
         self.instList[instID] = newInst
         self.instLayout.insertWidget(self.instLayout.count()-2, newInst)
 

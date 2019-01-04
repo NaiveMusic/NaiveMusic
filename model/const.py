@@ -240,7 +240,8 @@ def style(instName, state=True):
                 background-color: rgb(255, 255, 111);
                 image: url('view/Icons/instrument/default.svg');
                 
-            } """
+            } """ % (border_color)
+
         color = "rgb(255, 255, 111)"
 
     return style, color
