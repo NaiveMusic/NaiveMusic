@@ -12,10 +12,9 @@ class SheetView_Demo(QtWidgets.QWidget):
     def __init__(self, mc):
         super().__init__()
         self.mc = mc
+        self.mc.register(self)
         self.setupUi(self)
         self.initPianoRoll()
-        self.ROWMAX = 0
-        self.COLMAX = 0
 
     # PianoRoll
     def initPianoRoll(self):
@@ -38,7 +37,7 @@ class SheetView_Demo(QtWidgets.QWidget):
 
     def setupUi(self, MainWindow):
         # Note 个数
-        self.ROWMAX = 13
+        self.ROWMAX = 84
         self.COLMAX = 50
 
         # sheetSection: PianoRoll, Sheet, Velocity
@@ -92,27 +91,30 @@ class SheetView_Demo(QtWidgets.QWidget):
                 )
             else:
                 self.keyDict[keyName].setStyleSheet(
-                    "QPushButton:!pressed { background-color: rgb(0, 0, 0); }\n"
-                    "QPushButton:pressed { background-color: rgb(75, 75, 75); }"
+                    "QPushButton:!pressed { background-color: rgb(0, 0, 0); color: white; }\n"
+                    "QPushButton:pressed { background-color: rgb(75, 75, 75); color: white; }"
                 )
-            self.keyDict[keyName].setText("")
+            self.keyDict[keyName].setText(keyNum)
             self.keyDict[keyName].setCheckable(False)
             self.keyDict[keyName].setObjectName(keyName)
             self.PianoRoll.addWidget(self.keyDict[keyName], place, 0, 1, 1)
 
-        setKey('main', 8, 1)
-        setKey('main', 7, 2)
-        setKey('black', 6, 3)
-        setKey('main', 6, 4)
-        setKey('black', 5, 5)
-        setKey('main', 5, 6)
-        setKey('black', 4, 7)
-        setKey('main', 4, 8)
-        setKey('main', 3, 9)
-        setKey('black', 2, 10)
-        setKey('main', 2, 11)
-        setKey('black', 1, 12)
-        setKey('main', 1, 13)
+        i = 7
+        while i > 0:
+            offset = 84 - 12 * i
+            setKey('main', 'B' + str(i), 1 + offset)
+            setKey('black', 'A#' + str(i), 2 + offset)
+            setKey('main', 'A' + str(i), 3 + offset)
+            setKey('black', 'G#' + str(i), 4 + offset)
+            setKey('main', 'G' + str(i), 5 + offset)
+            setKey('black', 'F#' + str(i), 6 + offset)
+            setKey('main', 'F' + str(i), 7 + offset)
+            setKey('main', 'E' + str(i), 8 + offset)
+            setKey('black', 'D#' + str(i), 9 + offset)
+            setKey('main', 'D' + str(i), 10 + offset)
+            setKey('black', 'C#' + str(i), 11 + offset)
+            setKey('main', 'C' + str(i), 12 + offset)
+            i = i - 1
 
         self.pianoBoardWidget = QtWidgets.QWidget()
         self.pianoBoardWidget.setLayout(self.PianoRoll)
@@ -247,17 +249,35 @@ class SheetView_Demo(QtWidgets.QWidget):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+    # 更新全部sheet
     def update(self):
+        print('updating')
+        # return
+        # 清空sheet
+        for note in self.noteDict.values():
+            note.startFrom = 0
+            note.applyStyle()
+            note.setChecked(False)
+        # 获取note信息并绘制
         noteInfoList = self.mc.getNotesInfo(
             keys=KEY_RANGE, on=0, off=self.COLMAX)
         for noteInfo in noteInfoList:
             # 单音绘制
             if noteInfo['On'] == noteInfo['Off'] - 1:
-                self.noteDict['Note_' + str(noteInfo['On']) + '_' + str(i)]
-
+                self.noteDict['Note_' + str(KEY_TOP - noteInfo['Key']) + '_' +
+                              str(noteInfo['On'])].setChecked(True)
             # 长音绘制
             else:
-                pass
+                i = noteInfo['On']
+                while i < noteInfo['Off']:
+                    drawingNote = self.noteDict['Note_' +
+                                                str(KEY_TOP - noteInfo['Key'])
+                                                + '_' + str(i)]
+                    drawingNote.setChecked(True)
+                    drawingNote.startFrom = noteInfo['On']
+                    drawingNote.applyStyle()
+                    i += 1
+        print('update finished')
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
@@ -285,23 +305,13 @@ class NMPushButton(QtWidgets.QPushButton):
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == QtCore.Qt.LeftButton:
             self.setChecked(True)
-            print(self.objectName() + ': ' +
-                  "on" if self.isChecked() else "off")
-            # add note
-            data = self.objectName().split('_')
-            key = KEY_TOP - int(data[1])
-            on = int(data[2])
-            off = on + 1
-            self.mc.addNote(key=key, vel=100, on=on, off=off)
         elif QMouseEvent.button() == QtCore.Qt.RightButton:
             if self.startFrom == 0:
                 self.setChecked(False)
-                print(self.objectName() + ': ' +
-                      ("on" if self.isChecked() else "off"))
-                # delete note
-                data = self.objectName().split('_')
-                key = KEY_TOP - int(data[1])
-                on = int(data[2])
+                print("[DELETE] Single note: " + self.objectName())
+                # [Delete] Single note
+                key = KEY_TOP - self.row
+                on = self.col
                 off = on + 1
                 self.mc.delNote(key=key, on=on, off=off)
             else:
@@ -311,9 +321,11 @@ class NMPushButton(QtWidgets.QPushButton):
                     i = i + 1
                     if ('Note_' + str(self.row) + '_' +
                             str(i)) not in self.noteDict.keys():
+                        off = i
                         break
                     if self.noteDict['Note_' + str(self.row) + '_' +
                                      str(i)].startFrom != self.startFrom:
+                        off = i
                         break
                     self.noteDict['Note_' + str(self.row) + '_' +
                                   str(i)].setChecked(False)
@@ -321,15 +333,18 @@ class NMPushButton(QtWidgets.QPushButton):
                                   str(i)].startFrom = 0
                     self.noteDict['Note_' + str(self.row) + '_' +
                                   str(i)].applyStyle()
+                    off = i + 1
                 # 向左删除
                 i = self.col
                 while True:
                     i = i - 1
                     if ('Note_' + str(self.row) + '_' +
                             str(i)) not in self.noteDict.keys():
+                        on = i + 1
                         break
                     if self.noteDict['Note_' + str(self.row) + '_' +
                                      str(i)].startFrom != self.startFrom:
+                        on = i + 1
                         break
                     self.noteDict['Note_' + str(self.row) + '_' +
                                   str(i)].setChecked(False)
@@ -337,9 +352,27 @@ class NMPushButton(QtWidgets.QPushButton):
                                   str(i)].startFrom = 0
                     self.noteDict['Note_' + str(self.row) + '_' +
                                   str(i)].applyStyle()
+                    on = i
                 self.setChecked(False)
                 self.startFrom = 0
                 self.applyStyle()
+                print(
+                    f"[DELETE] Long note: from Note_{self.row}_{on} to Note_{self.row}_{off-1}"
+                )
+                # [Delete] Long note
+                key = KEY_TOP - self.row
+                self.mc.delNote(key=key, on=on, off=off)
+
+    def mouseReleaseEvent(self, QMouseEvent):
+        # 对拖拽与右键事件不响应
+        if self.startFrom != 0 or QMouseEvent.button() == QtCore.Qt.RightButton:
+            return
+        print("[ADD] Single note: " + self.objectName())
+        # [ADD] Single note
+        key = KEY_TOP - self.row
+        on = self.col
+        off = on + 1
+        self.mc.addNote(key=key, vel=100, on=on, off=off)
 
     def mouseMoveEvent(self, e):
         if e.buttons() != QtCore.Qt.LeftButton:
@@ -431,9 +464,20 @@ class NMPushButton(QtWidgets.QPushButton):
         if startNote.col == endNote.col:
             startNote.startFrom = 0
             startNote.applyStyle()
+            print("[ADD] Single note: " + startNote.objectName())
+            # [ADD] Single note
+            key = KEY_TOP - startNote.row
+            on = startNote.col
+            off = on + 1
+            self.mc.addNote(key=key, vel=100, on=on, off=off)
         else:
-            print("Long note from " + QMouseEvent.mimeData().text() + " to " +
-                  endNote.objectName())
+            print("[ADD] Long note: from " + QMouseEvent.mimeData().text() +
+                  " to " + endNote.objectName())
+            # [ADD] Long note
+            key = KEY_TOP - endNote.row
+            on = startNote.col
+            off = endNote.col + 1
+            self.mc.addNote(key=key, vel=100, on=on, off=off)
 
     def applyStyle(self):
         if self.startFrom == 0:

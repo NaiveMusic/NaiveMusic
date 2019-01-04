@@ -37,7 +37,7 @@ class SheetController(BaseController):
     def getCurKey(self):
         return self._curKey
 
-    def switchTrack(self, trackID, track):
+    def _switchTrack(self, trackID, track):
         self._curTrackID = trackID
         self._curTrack = track
         self._curPos = 0
@@ -72,6 +72,7 @@ class SheetController(BaseController):
         vel = options.get('vel', DEFAULT_VEL)
         on = options.get('on', self._curPos)
         off = options.get('off', self._curPos+1)
+        on,off=int(on),int(off)
 
         if not self.isOccupied(key, self._toTick(on), self._toTick(off)):
             self._curTrack.addNote(key, vel, self._toTick(on), self._toTick(off))
@@ -80,7 +81,7 @@ class SheetController(BaseController):
             pass
 
         self._state = STATE.EDITING
-        self.notify()
+        # self.notify()
 
     def delNote(self, **options):
         """ Delete all notes satisfying that
@@ -111,7 +112,7 @@ class SheetController(BaseController):
         self._curPos = on
 
         self._state = STATE.EDITING
-        self.notify()
+        # self.notify()
 
     def selectNote(self, key, on, off):
         """ Put all notes in range [on,off) into selection
@@ -209,7 +210,7 @@ class SheetController(BaseController):
     def isOccupied(self, key, on, off):
         """ Examine if the queried position is already occupied.
         """
-        if len(self.getNotesInfo(keys=[key],on=self._toTick(on),off=self._toTick(off))) > 0:
+        if len(self.getNotesInfo(keys=[key],on=on,off=off)) > 0:
             return True
         else:
             return False
@@ -289,6 +290,8 @@ class SheetController(BaseController):
         """
         if self._state is not STATE.SELECTING:
             return []
+        if self._curTrack is None:
+            return []
 
         noteInfoList = []
         noteIDList = self._selectedNoteIDList
@@ -303,7 +306,7 @@ class SheetController(BaseController):
         return noteInfoList
 
     def _toTick(self, sec):
-        return sec * DELTA
+        return int(sec) * int(DELTA)
 
     def _toSec(self, tick):
         return round(tick / float(DELTA))

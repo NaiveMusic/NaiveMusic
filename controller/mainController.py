@@ -43,8 +43,7 @@ class MainController(SheetController, AudioController):
             self._curTrack = None
             self._curTrackID = None
         else:
-            self.switchTrack(trackID, self.getTrack(trackID))
-        self.notify()
+            self._switchTrack(trackID, self.getTrack(trackID))
 
     def setTrackInst(self, trackID, inst):
         if inst not in INSTRUMENT:
@@ -92,7 +91,22 @@ class MainController(SheetController, AudioController):
         except:
             print('filename not exists!')
         self.notify()
-
+    
+    def export(self,fileType,fileName):
+        '''
+        fileType should be str, current support 'wav' and 'mid'
+        '''
+        mid = self._curFile.toMidi()
+        if fileType == 'mid':
+            mid.save(fileName)
+        elif fileType == 'wav':
+            buf = BytesIO()
+            mid.save(file=buf)
+            self._getSample(buf, mid.length, export=True, filename=fileName)
+        else:
+            raise NotImplementedError
+        
+    
     # Selection part
     def getSelectedInst(self):
         return self._selectedInst
@@ -101,20 +115,11 @@ class MainController(SheetController, AudioController):
         self._selectedInst = inst
 
     # Play part
-    def playAll(self, export=False, filename=None):
-        '''
-        export can be False(play immediately), or str, current support 'wav' and 'mid')
-        '''
-        mid = self._curFile.toMidi(export)
-        if export == 'mid':
-            mid.save(filename)
-        else:
-            buf = BytesIO()
-            mid.save(file=buf)
-            if not export:
-                self._play(buf, mid.length)
-            elif export == 'wav':
-                self._getSample(buf, mid.length, export=True, filename=filename)
+    def playAll(self):
+        mid = self._curFile.toMidi()
+        buf = BytesIO()
+        mid.save(file=buf)
+        self._play(buf, mid.length)
 
     def playSingle(self, key):
         self._playSingle(self._curTrack.inst, key)
