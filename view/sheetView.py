@@ -9,7 +9,7 @@ from model.const import *
 from view.NMPushButton import NMPushButton
 
 
-class SheetView_Demo(QtWidgets.QWidget):
+class SheetView(QtWidgets.QWidget):
     def __init__(self, mc):
         super().__init__()
         self.mc = mc

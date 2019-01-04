@@ -6,7 +6,7 @@ from PyQt5.QtGui import *
 
 from .trackView import TrackView, TrackContainer
 from .instrumentView import InstrumentView, InstrumentContainer
-from .sheetView_Demo import SheetView_Demo
+from .sheetView import SheetView
 from .toolBar import ToolBar
 from .menuView import Menu
 from controller.mainController import MainController
@@ -51,7 +51,7 @@ class MainWindow(QMainWindow):
         self.toolBar = ToolBar(self.mc, self.menu, self.tc)
 
     def initSheetUI(self):
-        self.sheet = SheetView_Demo(self.mc)
+        self.sheet = SheetView(self.mc)
 
     def initTrackUI(self):
         self.tc = TrackContainer(self.mc, self.sheet, self.instc)

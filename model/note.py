@@ -1,5 +1,6 @@
 from model.const import *
 
+
 class Note():
     def __init__(self, key, vel, on, off):
         self.setAll(key, vel, on, off)
@@ -15,11 +16,11 @@ class Note():
     @property
     def key(self):
         return self._key
-    
+
     @property
     def vel(self):
         return self._vel
-        
+
     def getInfo(self):
         '''Return note key, velocity, start time and stop time'''
         return self._key, self._vel, self._on, self._off

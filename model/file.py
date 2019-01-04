@@ -62,6 +62,7 @@ class File():
                     print(f'Message {msg} not supported yet!')
                 if not msg.is_meta:
                     curTime += msg.time
+
     #Demo part
     """
     def toDemoMidi(self):

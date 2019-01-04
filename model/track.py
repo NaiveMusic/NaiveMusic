@@ -55,7 +55,7 @@ class Track():
         """
         resultList = []
         for noteID in self.notes:
-            note=self.notes[noteID]
+            note = self.notes[noteID]
             if (note.key in keys and self._intersect(on, off, note.on, note.off)):
                 resultList.append(noteID)
         return resultList

@@ -78,7 +78,6 @@ class MainController(SheetController, AudioController):
         self.notify()
         self._state = STATE.DEFAULT
 
-
     def getAnyTrackNotesInfo(self, trackID, keys, on, off):
         """ Fetches info of all notes satisfying that
             1) note.key is in list of keys;
@@ -112,7 +111,6 @@ class MainController(SheetController, AudioController):
             noteInfoList.append(noteInfo)
         return noteInfoList
 
-        
     # File part
     def setBPM(self, bpm):
         if not isinstance(bpm, int) or bpm < 0 or bpm > 200:
@@ -142,8 +140,8 @@ class MainController(SheetController, AudioController):
         except:
             print('filename not exists!')
         self.notify()
-    
-    def export(self,fileType,fileName):
+
+    def export(self, fileType, fileName):
         '''
         fileType should be str, current support 'wav' and 'mid'
         '''
@@ -156,7 +154,6 @@ class MainController(SheetController, AudioController):
             self._getSample(buf, mid.length, export=True, filename=fileName)
         else:
             raise NotImplementedError
-    
 
     # Selection part
     def getSelectedInst(self):
