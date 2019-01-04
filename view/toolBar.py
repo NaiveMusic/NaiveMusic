@@ -90,7 +90,7 @@ class ToolBar(QWidget):
                 border-color: beige;
                 padding: 15px;
                 background-color: rgb(205, 225, 209);
-                image: url('view/Icons/ui/stop.svg');
+                image: url('view/Icons/ui/pauseAll.svg');
             } """)
         self.stopButton.clicked.connect(self.stop)
 
@@ -207,21 +207,22 @@ class ToolBar(QWidget):
 
     def playTrack(self):
         if self.isPlay:
-            self.playButton.setStyleSheet("""
-                .QPushButton {
-                    width: 30px;
-                    height: 30px;
-                    border-style: outset;
-                    border-width: 2px;
-                    border-radius: 10px;
-                    border-color: beige;
-                    padding: 15px;
-                    background-color: rgb(205, 225, 209);
-                    image: url('view/Icons/ui/play.svg');
-                } """)
-            self.isPlay = False
-            self.pause()
-            print('Track {0} now paused. '.format(self.mc.getCurTrackID()))
+            pass
+            # self.playButton.setStyleSheet("""
+            #     .QPushButton {
+            #         width: 30px;
+            #         height: 30px;
+            #         border-style: outset;
+            #         border-width: 2px;
+            #         border-radius: 10px;
+            #         border-color: beige;
+            #         padding: 15px;
+            #         background-color: rgb(205, 225, 209);
+            #         image: url('view/Icons/ui/play.svg');
+            #     } """)
+            # self.isPlay = False
+            # self.pause()
+            # print('Track {0} now paused. '.format(self.mc.getCurTrackID()))
 
         else:
             if self.mc.getCurTrackID() is None:
@@ -237,29 +238,30 @@ class ToolBar(QWidget):
                     border-color: beige;
                     padding: 15px;
                     background-color: rgb(205, 225, 209);
-                    image: url('view/Icons/ui/pause.svg');
+                    image: url('view/Icons/ui/play.svg');
                 } """)
-                self.isPlay = True
+                # self.isPlay = True
                 self.mc.playTrack(self.mc.getCurTrackID())
                 print('Track {0} is playing. '.format(self.mc.getCurTrackID()))
 
     def playAll(self):
         if self.isPlay:
-            self.playAllButton.setStyleSheet("""
-                .QPushButton {
-                    width: 30px;
-                    height: 30px;
-                    border-style: outset;
-                    border-width: 2px;
-                    border-radius: 10px;
-                    border-color: beige;
-                    padding: 15px;
-                    background-color: rgb(205, 225, 209);
-                    image: url('view/Icons/ui/playAll.svg');
-                } """)
-            self.isPlay = False
-            self.pause()
-            print('All paused. ')
+            pass
+            # self.playAllButton.setStyleSheet("""
+            #     .QPushButton {
+            #         width: 30px;
+            #         height: 30px;
+            #         border-style: outset;
+            #         border-width: 2px;
+            #         border-radius: 10px;
+            #         border-color: beige;
+            #         padding: 15px;
+            #         background-color: rgb(205, 225, 209);
+            #         image: url('view/Icons/ui/playAll.svg');
+            #     } """)
+            # self.isPlay = False
+            # self.pause()
+            # print('All paused. ')
 
         else:
             if self.mc.getTrackNum() == 0:
@@ -275,9 +277,9 @@ class ToolBar(QWidget):
                     border-color: beige;
                     padding: 15px;
                     background-color: rgb(205, 225, 209);
-                    image: url('view/Icons/ui/pauseAll.svg');
+                    image: url('view/Icons/ui/playAll.svg');
                 } """)
-                self.isPlay = True
+                # self.isPlay = True
                 self.mc.playAll()
                 print('All are playing. ')
 
