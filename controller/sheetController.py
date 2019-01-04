@@ -72,8 +72,9 @@ class SheetController(BaseController):
         vel = options.get('vel', DEFAULT_VEL)
         on = options.get('on', self._curPos)
         off = options.get('off', self._curPos+1)
+        on,off=int(on),int(off)
 
-        if not self.isOccupied(key, self._toTick(on), self._toTick(off)):
+        if not self.isOccupied(key, on, off):
             self._curTrack.addNote(key, vel, self._toTick(on), self._toTick(off))
             self._curPos = off
         else:
@@ -209,7 +210,7 @@ class SheetController(BaseController):
     def isOccupied(self, key, on, off):
         """ Examine if the queried position is already occupied.
         """
-        if len(self.getNotesInfo(keys=[key],on=self._toTick(on),off=self._toTick(off))) > 0:
+        if len(self.getNotesInfo(keys=[key],on=on,off=off)) > 0:
             return True
         else:
             return False
@@ -303,7 +304,7 @@ class SheetController(BaseController):
         return noteInfoList
 
     def _toTick(self, sec):
-        return sec * DELTA
+        return int(sec) * int(DELTA)
 
     def _toSec(self, tick):
         return round(tick / float(DELTA))

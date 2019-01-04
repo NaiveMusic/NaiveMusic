@@ -12,10 +12,11 @@ class SheetView_Demo(QtWidgets.QWidget):
     def __init__(self, mc):
         super().__init__()
         self.mc = mc
+        self.mc.register(self)
         self.setupUi(self)
         self.initPianoRoll()
-        self.ROWMAX = 0
-        self.COLMAX = 0
+        # self.ROWMAX = 0
+        # self.COLMAX = 0
 
     # PianoRoll
     def initPianoRoll(self):
@@ -249,8 +250,9 @@ class SheetView_Demo(QtWidgets.QWidget):
 
     # 更新全部sheet
     def update(self):
+        print('updating')
         # 清空sheet
-        for note in self.noteDict:
+        for note in self.noteDict.values():
             note.startFrom = 0
             note.applyStyle()
             note.setChecked(False)

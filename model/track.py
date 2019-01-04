@@ -58,6 +58,8 @@ class Track():
             note=self.notes[noteID]
             if (note.key in keys and self._intersect(on, off, note.on, note.off)):
                 resultList.append(noteID)
+            else:
+                print('fuck',on,off,note.on,note.off)
         return resultList
 
     def _intersect(self, on1, off1, on2, off2):
