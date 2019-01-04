@@ -50,7 +50,7 @@ class SheetView_Demo(QtWidgets.QWidget):
 
         # Note 个数
         self.ROWMAX = 84
-        self.COLMAX = 50
+        self.COLMAX = 128
 
         # sheetSection: PianoRoll, Sheet, Velocity
         self.SheetSection = QtWidgets.QHBoxLayout()
