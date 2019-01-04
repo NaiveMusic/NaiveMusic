@@ -21,7 +21,7 @@ class File():
         poped = self.tracks.pop(trackID)
         del poped
 
-    def toMidi(self, export=False):
+    def toMidi(self):
         mid = MidiFile()
         for i, track in enumerate(self.tracks.values()):
             midiTrack = track.toMidi(bpm=self.bpm, channel=i, save=False)
