@@ -40,8 +40,8 @@ class SheetView_Demo(QtWidgets.QWidget):
         self.curTrack = None
 
         # Note 个数
-        self.ROWMAX = 84
-        self.COLMAX = 50
+        self.ROWMAX = 10 #84
+        self.COLMAX = 10 #50
 
         # sheetSection: PianoRoll, Sheet, Velocity
         self.SheetSection = QtWidgets.QHBoxLayout()
@@ -209,6 +209,10 @@ class SheetView_Demo(QtWidgets.QWidget):
             QtCore.Qt.ScrollBarAlwaysOff)
         self.sheetScroll.setHorizontalScrollBarPolicy(
             QtCore.Qt.ScrollBarAlwaysOff)
+        self.pianoScroll.setVerticalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOff)
+        self.sheetScroll.setVerticalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOff)
 
         # Velocity
         self.Velocity = QtWidgets.QGridLayout()
@@ -275,6 +279,13 @@ class SheetView_Demo(QtWidgets.QWidget):
                         drawingNote.startFrom = 0
                         drawingNote.applyStyle()
                         i += 1
+        """
+        # 暴力清空sheet
+        for note in self.noteDict.values():
+            note.startFrom = 0
+            note.applyStyle()
+            note.setChecked(False)
+        """
         # 获取note信息并绘制
         self.curTrack = self.mc.getCurTrackID()
         if self.curTrack is not None:
@@ -332,7 +343,7 @@ class NMPushButton(QtWidgets.QPushButton):
                 key = KEY_TOP - self.row
                 on = self.col
                 off = on + 1
-                self.mc.delNote(key=key, on=on, off=off)
+                self.mc.delNote(keys=[key], on=on, off=off)
             else:
                 # 向右删除
                 i = self.col
@@ -380,7 +391,7 @@ class NMPushButton(QtWidgets.QPushButton):
                 )
                 # [Delete] Long note
                 key = KEY_TOP - self.row
-                self.mc.delNote(key=key, on=on, off=off)
+                self.mc.delNote(keys=[key], on=on, off=off)
 
     def mouseReleaseEvent(self, QMouseEvent):
         # 对拖拽与右键事件不响应
@@ -495,8 +506,12 @@ class NMPushButton(QtWidgets.QPushButton):
                   " to " + endNote.objectName())
             # [ADD] Long note
             key = KEY_TOP - endNote.row
-            on = startNote.col
-            off = endNote.col + 1
+            if startNote.col > endNote.col:
+                on = endNote.col
+                off = startNote.col + 1
+            else:
+                on = startNote.col
+                off = endNote.col + 1
             self.mc.addNote(key=key, vel=100, on=on, off=off)
 
     def applyStyle(self):

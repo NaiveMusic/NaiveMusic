@@ -1,4 +1,5 @@
 import sys
+from PyQt5 import QtGui
 from PyQt5.QtCore import *
 from PyQt5.QtWidgets import *
 from PyQt5.QtGui import *
@@ -31,6 +32,12 @@ class MainWindow(QMainWindow):
         self.setWindowTitle('Naive Music')
         self.resize(1920, 1080)
 
+        # 窗口图标
+        icon = QtGui.QIcon()
+        icon.addPixmap(
+            QtGui.QPixmap("view/Icons/global/logo.png"), QtGui.QIcon.Normal,
+            QtGui.QIcon.Off)
+        self.setWindowIcon(icon)
 
     def initUI(self):
         self.mc = MainController()
@@ -48,5 +55,3 @@ class MainWindow(QMainWindow):
 
     def initTrackUI(self):
         self.tc = TrackContainer(self.mc, self.sheet, self.instc)
-
-
