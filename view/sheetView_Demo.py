@@ -142,6 +142,7 @@ class SheetView_Demo(QtWidgets.QWidget):
             .QScrollArea {
                 background-color: transparent;
             }""")
+        # self.pianoScroll.setVa
         self.SheetSection.addWidget(self.pianoScroll)
 
         # Sheet
@@ -203,6 +204,10 @@ class SheetView_Demo(QtWidgets.QWidget):
             font.setPointSize(10)
             self.measureDict[measureName].setFont(font)
             self.measureDict[measureName].setObjectName(str(num))
+            self.measureDict[measureName].setStyleSheet("""
+            .QLabel {
+                color: white;
+            }""")
             self.Sheet.addWidget(self.measureDict[measureName], 0,
                                  (num - 1) * 4, 1, 1)
 
@@ -239,6 +244,10 @@ class SheetView_Demo(QtWidgets.QWidget):
         self.sheetScroll.setVerticalScrollBarPolicy(
             QtCore.Qt.ScrollBarAlwaysOff)
 
+        self.pianoScroll.verticalScrollBar().setValue(1350)
+        self.sheetScroll.verticalScrollBar().setValue(1350)
+
+        """
         # Velocity
         self.Velocity = QtWidgets.QGridLayout()
         self.Velocity.setSpacing(0)
@@ -275,6 +284,7 @@ class SheetView_Demo(QtWidgets.QWidget):
         self.VelocitySlider.setObjectName("VelocitySlider")
         self.Velocity.addWidget(self.VelocitySlider, 1, 0, 1, 1)
         self.SheetSection.addLayout(self.Velocity)
+        """
 
         self.setLayout(self.SheetSection)
 
@@ -338,7 +348,7 @@ class SheetView_Demo(QtWidgets.QWidget):
         for name in self.measureDict:
             self.measureDict[name].setText(
                 _translate("MainWindow", self.measureDict[name].objectName()))
-        self.VelocityLabel.setText(_translate("MainWindow", "Velocity"))
+        # self.VelocityLabel.setText(_translate("MainWindow", "Velocity"))
 
 
 class NMPushButton(QtWidgets.QPushButton):
