@@ -251,6 +251,7 @@ class SheetView_Demo(QtWidgets.QWidget):
     # 更新全部sheet
     def update(self):
         print('updating')
+        return
         # 清空sheet
         for note in self.noteDict.values():
             note.startFrom = 0
@@ -360,8 +361,8 @@ class NMPushButton(QtWidgets.QPushButton):
                 self.mc.delNote(key=key, on=on, off=off)
 
     def mouseReleaseEvent(self, QMouseEvent):
-        # 对拖拽事件不响应
-        if self.startFrom != 0:
+        # 对拖拽与右键事件不响应
+        if self.startFrom != 0 or QMouseEvent.button() == QtCore.Qt.RightButton:
             return
         print("[ADD] Single note: " + self.objectName())
         # [ADD] Single note
