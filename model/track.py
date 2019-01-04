@@ -71,6 +71,9 @@ class Track():
         return True
 
     def toMidi(self, bpm, channel=0, save=True):
+        """ Transform all notes into midi events
+        """
+
         track = MidiTrack()
         track.append(Message('program_change', channel=channel, program=self.inst, time=0))
         # change track vel

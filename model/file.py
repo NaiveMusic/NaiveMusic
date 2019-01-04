@@ -22,6 +22,8 @@ class File():
         del poped
 
     def toMidi(self):
+        """ Transform entire file into midi events 
+        """
         mid = MidiFile()
         for i, track in enumerate(self.tracks.values()):
             midiTrack = track.toMidi(bpm=self.bpm, channel=i, save=False)
@@ -29,6 +31,8 @@ class File():
         return mid
 
     def midiToFile(self, file='output.mid'):
+        """ Transform .mid format into current file
+        """
         mid = MidiFile(file)
         self.tracks.clear()
         self.curID = 0
