@@ -201,11 +201,13 @@ class Menu(QWidget):
     def save2Wav(self):
         fname = QFileDialog.getSaveFileName(self, 'Export to wav', '../', "WAV (*.wav)")
         if fname[0]:
-            self.mc.playAll(self, 'wav', fname[0])
+            # self.mc.playAll(self, 'wav', fname[0])
+            self.mc.export('wav',fname[0])
 
     def save2Midi(self):
         fname = QFileDialog.getSaveFileName(self, 'Export to midi', '../', "MIDI (*.mid)")
         if fname[0]:
-            self.mc.playAll(self, 'mid', fname[0])
+            # self.mc.playAll(self, 'mid', fname[0])
+            self.mc.export('mid',fname[0])
 
 
