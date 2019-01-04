@@ -176,7 +176,7 @@ class Menu(QWidget):
                     border-color: black;
                     padding: 15px;
                 }""")
-        self.exitButton.clicked.connect(self.openFile)
+        self.exitButton.clicked.connect(self.exit)
         self.exitButton.move(15, ypos)
         ypos = ypos + step + 30
 
@@ -207,5 +207,8 @@ class Menu(QWidget):
         fname = QFileDialog.getSaveFileName(self, 'Export to midi', '../', "MIDI (*.mid)")
         if fname[0]:
             self.mc.playAll(self, 'mid', fname[0])
+
+    def exit(self):
+        sys.exit()
 
 
