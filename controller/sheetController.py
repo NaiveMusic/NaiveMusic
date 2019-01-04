@@ -74,7 +74,7 @@ class SheetController(BaseController):
         off = options.get('off', self._curPos+1)
         on,off=int(on),int(off)
 
-        if not self.isOccupied(key, on, off):
+        if not self.isOccupied(key, self._toTick(on), self._toTick(off)):
             self._curTrack.addNote(key, vel, self._toTick(on), self._toTick(off))
             self._curPos = off
         else:
@@ -289,6 +289,8 @@ class SheetController(BaseController):
             Notes are not neccessarily intersected with the area.
         """
         if self._state is not STATE.SELECTING:
+            return []
+        if self._curTrack is None:
             return []
 
         noteInfoList = []
