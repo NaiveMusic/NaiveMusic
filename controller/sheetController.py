@@ -240,6 +240,38 @@ class SheetController(BaseController):
         return trackInfo
 
 
+    def getNotesInfo(self, keys, on, off):
+        """ Fetches info of all notes satisfying that
+            1) note.key is in list of keys;
+            2) the interval [note.on, note.off) has non-empty intersection with [on,off).
+        
+        Keyword Args:
+            keys (<list>int): the list of 'key' property.
+            on (int): the start time of the interval.
+            off (int): the end time of the interval.
+
+        Return: a list-dict structure. For example:
+                [noteInfo1,noteInfo2,noteInfo3]
+            where
+                noteInfo1 = {'key':18,'vel':100,'on':13,'off':14},
+                noteInfo2 = {'key':19,'vel':100,'on':14,'off':15},
+                noteInfo3 = {'key':16,'vel':100,'on':15,'off':16}.
+
+        P.S.
+            Notes are not neccessarily contained in the area.
+        """
+        noteInfoList = []
+        noteIDList = self._curTrack.search(on=self._toTick(on), off=self._toTick(off), keys = keys)
+        for noteID in noteIDList:
+            note = self._curTrack.getNote(noteID)
+            noteInfo = {}
+            noteInfo['Key'] = note.key
+            noteInfo['Velocity'] = note.vel
+            noteInfo['On'] = self._toSec(note.on)
+            noteInfo['Off'] = self._toSec(note.off)
+            noteInfoList.append(noteInfo)
+        return noteInfoList
+
     def getSelectedNotesInfo(self):
         """ Fetches info of all *SELECTED* notes.
 
