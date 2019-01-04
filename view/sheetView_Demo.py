@@ -28,7 +28,16 @@ class SheetView_Demo(QtWidgets.QWidget):
     # PianoRoll点击事件
     def key_clicked(self):
         sender = self.sender()
-
+        if self.mc.getCurTrackID() is None:
+            warnDialog = QtWidgets.QDialog(self)
+            warnLabel = QtWidgets.QLabel('Please select an track first!',
+                                         warnDialog)
+            warnLabel.move(100, 100)
+            warnDialog.setWindowTitle("Alert")
+            warnDialog.resize(500, 200)
+            warnDialog.setWindowModality(QtCore.Qt.ApplicationModal)
+            warnDialog.exec_()
+            return
         # Change below
         print(sender.objectName())
         key = sender.objectName().split('_')[1]
@@ -36,6 +45,9 @@ class SheetView_Demo(QtWidgets.QWidget):
         # Change above
 
     def setupUi(self, MainWindow):
+        # 当前Track
+        self.curTrack = None
+
         # Note 个数
         self.ROWMAX = 84
         self.COLMAX = 50
@@ -118,10 +130,19 @@ class SheetView_Demo(QtWidgets.QWidget):
 
         self.pianoBoardWidget = QtWidgets.QWidget()
         self.pianoBoardWidget.setLayout(self.PianoRoll)
+        self.pianoBoardWidget.setStyleSheet("""
+            .QWidget {
+                background-color: transparent;
+            }""")
         self.pianoScroll = QtWidgets.QScrollArea()
         self.pianoScroll.setWidget(self.pianoBoardWidget)
         self.pianoScroll.setMinimumHeight(350)
         self.pianoScroll.setFixedWidth(160)
+        self.pianoScroll.setStyleSheet("""
+            .QScrollArea {
+                background-color: transparent;
+            }""")
+        # self.pianoScroll.setVa
         self.SheetSection.addWidget(self.pianoScroll)
 
         # Sheet
@@ -183,6 +204,10 @@ class SheetView_Demo(QtWidgets.QWidget):
             font.setPointSize(10)
             self.measureDict[measureName].setFont(font)
             self.measureDict[measureName].setObjectName(str(num))
+            self.measureDict[measureName].setStyleSheet("""
+            .QLabel {
+                color: white;
+            }""")
             self.Sheet.addWidget(self.measureDict[measureName], 0,
                                  (num - 1) * 4, 1, 1)
 
@@ -192,8 +217,16 @@ class SheetView_Demo(QtWidgets.QWidget):
             measureNum = measureNum - 1
         self.sheetBoardWidget = QtWidgets.QWidget()
         self.sheetBoardWidget.setLayout(self.Sheet)
+        self.sheetBoardWidget.setStyleSheet("""
+            .QWidget {
+                background-color: transparent;
+            }""")
         self.sheetScroll = QtWidgets.QScrollArea()
         self.sheetScroll.setWidget(self.sheetBoardWidget)
+        self.sheetScroll.setStyleSheet("""
+            .QScrollArea {
+                background-color: transparent;
+            }""")
         self.SheetSection.addWidget(self.sheetScroll)
 
         # 同步滚动
@@ -206,7 +239,15 @@ class SheetView_Demo(QtWidgets.QWidget):
             QtCore.Qt.ScrollBarAlwaysOff)
         self.sheetScroll.setHorizontalScrollBarPolicy(
             QtCore.Qt.ScrollBarAlwaysOff)
+        self.pianoScroll.setVerticalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOff)
+        self.sheetScroll.setVerticalScrollBarPolicy(
+            QtCore.Qt.ScrollBarAlwaysOff)
 
+        self.pianoScroll.verticalScrollBar().setValue(1350)
+        self.sheetScroll.verticalScrollBar().setValue(1350)
+
+        """
         # Velocity
         self.Velocity = QtWidgets.QGridLayout()
         self.Velocity.setSpacing(0)
@@ -243,6 +284,7 @@ class SheetView_Demo(QtWidgets.QWidget):
         self.VelocitySlider.setObjectName("VelocitySlider")
         self.Velocity.addWidget(self.VelocitySlider, 1, 0, 1, 1)
         self.SheetSection.addLayout(self.Velocity)
+        """
 
         self.setLayout(self.SheetSection)
 
@@ -252,31 +294,52 @@ class SheetView_Demo(QtWidgets.QWidget):
     # 更新全部sheet
     def update(self):
         print('updating')
-        # return
-        # 清空sheet
+        if self.curTrack is not None:
+            # 清空sheet
+            eraseList = self.mc.getAnyTrackNotesInfo(
+                self.curTrack, keys=KEY_RANGE, on=0, off=self.COLMAX)
+            for noteInfo in eraseList:
+                # 单音清空
+                if noteInfo['On'] == noteInfo['Off'] - 1:
+                    self.noteDict['Note_' + str(KEY_TOP - noteInfo['Key']) +
+                                  '_' + str(noteInfo['On'])].setChecked(False)
+                # 长音清空
+                else:
+                    i = noteInfo['On']
+                    while i < noteInfo['Off']:
+                        drawingNote = self.noteDict['Note_' + str(
+                            KEY_TOP - noteInfo['Key']) + '_' + str(i)]
+                        drawingNote.setChecked(False)
+                        drawingNote.startFrom = 0
+                        drawingNote.applyStyle()
+                        i += 1
+        """
+        # 暴力清空sheet
         for note in self.noteDict.values():
             note.startFrom = 0
             note.applyStyle()
             note.setChecked(False)
+        """
         # 获取note信息并绘制
-        noteInfoList = self.mc.getNotesInfo(
-            keys=KEY_RANGE, on=0, off=self.COLMAX)
-        for noteInfo in noteInfoList:
-            # 单音绘制
-            if noteInfo['On'] == noteInfo['Off'] - 1:
-                self.noteDict['Note_' + str(KEY_TOP - noteInfo['Key']) + '_' +
-                              str(noteInfo['On'])].setChecked(True)
-            # 长音绘制
-            else:
-                i = noteInfo['On']
-                while i < noteInfo['Off']:
-                    drawingNote = self.noteDict['Note_' +
-                                                str(KEY_TOP - noteInfo['Key'])
-                                                + '_' + str(i)]
-                    drawingNote.setChecked(True)
-                    drawingNote.startFrom = noteInfo['On']
-                    drawingNote.applyStyle()
-                    i += 1
+        self.curTrack = self.mc.getCurTrackID()
+        if self.curTrack is not None:
+            noteInfoList = self.mc.getAnyTrackNotesInfo(
+                self.curTrack, keys=KEY_RANGE, on=0, off=self.COLMAX)
+            for noteInfo in noteInfoList:
+                # 单音绘制
+                if noteInfo['On'] == noteInfo['Off'] - 1:
+                    self.noteDict['Note_' + str(KEY_TOP - noteInfo['Key']) +
+                                  '_' + str(noteInfo['On'])].setChecked(True)
+                # 长音绘制
+                else:
+                    i = noteInfo['On']
+                    while i < noteInfo['Off']:
+                        drawingNote = self.noteDict['Note_' + str(
+                            KEY_TOP - noteInfo['Key']) + '_' + str(i)]
+                        drawingNote.setChecked(True)
+                        drawingNote.startFrom = noteInfo['On']
+                        drawingNote.applyStyle()
+                        i += 1
         print('update finished')
 
     def retranslateUi(self, MainWindow):
@@ -285,7 +348,7 @@ class SheetView_Demo(QtWidgets.QWidget):
         for name in self.measureDict:
             self.measureDict[name].setText(
                 _translate("MainWindow", self.measureDict[name].objectName()))
-        self.VelocityLabel.setText(_translate("MainWindow", "Velocity"))
+        # self.VelocityLabel.setText(_translate("MainWindow", "Velocity"))
 
 
 class NMPushButton(QtWidgets.QPushButton):
@@ -303,6 +366,16 @@ class NMPushButton(QtWidgets.QPushButton):
 
     # 重载点击事件
     def mousePressEvent(self, QMouseEvent):
+        if self.mc.getCurTrackID() is None:
+            warnDialog = QtWidgets.QDialog(self)
+            warnLabel = QtWidgets.QLabel('Please select an track first!',
+                                         warnDialog)
+            warnLabel.move(100, 100)
+            warnDialog.setWindowTitle("Alert")
+            warnDialog.resize(500, 200)
+            warnDialog.setWindowModality(QtCore.Qt.ApplicationModal)
+            warnDialog.exec_()
+            return
         if QMouseEvent.button() == QtCore.Qt.LeftButton:
             self.setChecked(True)
         elif QMouseEvent.button() == QtCore.Qt.RightButton:
@@ -313,7 +386,7 @@ class NMPushButton(QtWidgets.QPushButton):
                 key = KEY_TOP - self.row
                 on = self.col
                 off = on + 1
-                self.mc.delNote(key=key, on=on, off=off)
+                self.mc.delNote(keys=[key], on=on, off=off)
             else:
                 # 向右删除
                 i = self.col
@@ -361,11 +434,12 @@ class NMPushButton(QtWidgets.QPushButton):
                 )
                 # [Delete] Long note
                 key = KEY_TOP - self.row
-                self.mc.delNote(key=key, on=on, off=off)
+                self.mc.delNote(keys=[key], on=on, off=off)
 
     def mouseReleaseEvent(self, QMouseEvent):
         # 对拖拽与右键事件不响应
-        if self.startFrom != 0 or QMouseEvent.button() == QtCore.Qt.RightButton:
+        if self.startFrom != 0 or QMouseEvent.button(
+        ) == QtCore.Qt.RightButton:
             return
         print("[ADD] Single note: " + self.objectName())
         # [ADD] Single note
@@ -475,8 +549,12 @@ class NMPushButton(QtWidgets.QPushButton):
                   " to " + endNote.objectName())
             # [ADD] Long note
             key = KEY_TOP - endNote.row
-            on = startNote.col
-            off = endNote.col + 1
+            if startNote.col > endNote.col:
+                on = endNote.col
+                off = startNote.col + 1
+            else:
+                on = startNote.col
+                off = endNote.col + 1
             self.mc.addNote(key=key, vel=100, on=on, off=off)
 
     def applyStyle(self):

@@ -98,7 +98,7 @@ class AudioController(BaseController):
         self._fluid_player_stop(player)
         self._fluid_player_join(player)
         self._delete_fluid_player(player)
-        if export: buf = open(filename, 'rb')
+        if export: buf = open(filename, 'wb')
         else: buf = BytesIO()
 
         with wave.open(buf, 'wb') as wf:
