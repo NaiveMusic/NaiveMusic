@@ -63,11 +63,12 @@ class MainController(SheetController, AudioController):
     def delTrack(self, trackID):
         if trackID not in self._curFile.tracks:
             raise ValueError('Track ID {} not found when del'.format(trackID))
-        self._curFile.delTrack(trackID)
         if trackID == self._curTrackID:
             self.setCurTrack(None)
-        self._state = STATE.DEFAULT
         self.notify()
+        self._curFile.delTrack(trackID)
+        self.notify()
+        self._state = STATE.DEFAULT
 
 
     def getAnyTrackNotesInfo(self, trackID, keys, on, off):
