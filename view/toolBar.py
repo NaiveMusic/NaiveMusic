@@ -57,7 +57,7 @@ class ToolBar(QWidget):
                 border-radius: 10px;
                 border-color: beige;
                 padding: 15px;
-                background-color: rgb(255, 255, 111);
+                background-color: rgb(205, 225, 209);
                 image: url('view/Icons/ui/play.svg');
             } """)
         self.playButton.clicked.connect(self.playTrack)
@@ -73,7 +73,7 @@ class ToolBar(QWidget):
                 border-radius: 10px;
                 border-color: beige;
                 padding: 15px;
-                background-color: rgb(255, 255, 111);
+                background-color: rgb(205, 225, 209);
                 image: url('view/Icons/ui/playAll.svg');
             } """)
         self.playAllButton.clicked.connect(self.playAll)
@@ -89,7 +89,7 @@ class ToolBar(QWidget):
                 border-radius: 10px;
                 border-color: beige;
                 padding: 15px;
-                background-color: rgb(255, 255, 111);
+                background-color: rgb(205, 225, 209);
                 image: url('view/Icons/ui/stop.svg');
             } """)
         self.stopButton.clicked.connect(self.stop)
@@ -99,14 +99,9 @@ class ToolBar(QWidget):
         self.bpm.setAlignment(Qt.AlignRight | Qt.AlignVCenter)
         self.bpm.setStyleSheet("""
             .QLabel {
-                width: 30px;
-                height: 10px;
-                border-style: outset;
-                border-width: 2px;
-                border-radius: 5px;
-                border-color: beige;
-                padding: 15px;
-                background-color: rgb(111, 255, 255)
+                font: 25px Verdana;
+                font-weight: bold;
+                color: white;
 
             }""")
 
@@ -119,29 +114,25 @@ class ToolBar(QWidget):
         self.bpmBox.valueChanged.connect(self.setBPM)
         self.bpmBox.setStyleSheet("""
             .QSpinBox {
-                width: 30px;
-                height: 30px;
+                width: 70px;
+                height: 40px;
                 border-style: outset;
                 border-width: 2px;
                 border-radius: 5px;
                 border-color: beige;
-                background-color: rgb(111, 255, 255)
-
+                font: 20px Verdana;
+                font-weight: bold;
+                color: black;
             }""")
 
 
-        self.volume = QLabel('Volume', self)
+        self.volume = QLabel('VOL', self)
         self.volume.setAlignment(Qt.AlignLeft | Qt.AlignVCenter)
         self.volume.setStyleSheet("""
             .QLabel {
-                width: 30px;
-                height: 10px;
-                border-style: outset;
-                border-width: 2px;
-                border-radius: 5px;
-                border-color: beige;
-                padding: 15px;
-                background-color: rgb(111, 255, 255)
+                font: 25px Verdana;
+                font-weight: bold;
+                color: white;
 
             }""")
 
@@ -152,14 +143,15 @@ class ToolBar(QWidget):
         self.volAdjuster.valueChanged.connect(self.setBPM)
         self.volAdjuster.setStyleSheet("""
             .QSpinBox {
-                width: 30px;
-                height: 30px;
+                width: 70px;
+                height: 40px;
                 border-style: outset;
                 border-width: 2px;
                 border-radius: 5px;
                 border-color: beige;
-                background-color: rgb(111, 255, 255)
-
+                font: 20px Verdana;
+                font-weight: bold;
+                color: black;
             }""")
 
         self.addButton = QPushButton('', self)
@@ -172,7 +164,7 @@ class ToolBar(QWidget):
                 border-radius: 10px;
                 border-color: beige;
                 padding: 15px;
-                background-color: rgb(255, 255, 111);
+                background-color: rgb(205, 225, 209);
                 image: url('view/Icons/ui/addTrack.svg');
             } """)
         self.addButton.clicked.connect(self.addTrack)
@@ -187,7 +179,7 @@ class ToolBar(QWidget):
                 border-radius: 10px;
                 border-color: beige;
                 padding: 15px;
-                background-color: rgb(255, 255, 111);
+                background-color: rgb(205, 225, 209);
                 image: url('view/Icons/ui/delTrack.svg');
             } """)
         self.delButton.clicked.connect(self.delTrack)
@@ -224,7 +216,7 @@ class ToolBar(QWidget):
                     border-radius: 10px;
                     border-color: beige;
                     padding: 15px;
-                    background-color: rgb(255, 255, 111);
+                    background-color: rgb(205, 225, 209);
                     image: url('view/Icons/ui/play.svg');
                 } """)
             self.isPlay = False
@@ -244,7 +236,7 @@ class ToolBar(QWidget):
                     border-radius: 10px;
                     border-color: beige;
                     padding: 15px;
-                    background-color: rgb(255, 255, 111);
+                    background-color: rgb(205, 225, 209);
                     image: url('view/Icons/ui/pause.svg');
                 } """)
                 self.isPlay = True
@@ -262,7 +254,7 @@ class ToolBar(QWidget):
                     border-radius: 10px;
                     border-color: beige;
                     padding: 15px;
-                    background-color: rgb(255, 255, 111);
+                    background-color: rgb(205, 225, 209);
                     image: url('view/Icons/ui/playAll.svg');
                 } """)
             self.isPlay = False
@@ -282,7 +274,7 @@ class ToolBar(QWidget):
                     border-radius: 10px;
                     border-color: beige;
                     padding: 15px;
-                    background-color: rgb(255, 255, 111);
+                    background-color: rgb(205, 225, 209);
                     image: url('view/Icons/ui/pauseAll.svg');
                 } """)
                 self.isPlay = True

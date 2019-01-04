@@ -25,7 +25,7 @@ class Menu(QWidget):
                 border-radius: 10px;
                 border-color: beige;
                 padding: 15px;
-                background-color: rgb(255, 255, 111);
+                background-color: rgb(205, 225, 209);
                 image: url('view/Icons/ui/menu.svg');
             } """)
         self.menuButton.clicked.connect(self.showDialog)
@@ -83,7 +83,7 @@ class Menu(QWidget):
             File name is further processed via maincontroller
             
         '''
-        fname = QFileDialog.getOpenFileName(self, 'Open file', '../', "TEXT files (*.txt)")
+        fname = QFileDialog.getOpenFileName(self, 'Open file', '../', "Midi (*.mid)")
         if fname[0]:
             self.processFile(fname[0])
 

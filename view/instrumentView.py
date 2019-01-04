@@ -17,7 +17,7 @@ class InstrumentView(QWidget):
                 border-radius: 10px;
                 border-color: beige;
                 padding: 15px;
-                background-color: rgb(255, 255, 111);
+                background-color: rgb(224, 224, 224);
                 image: url('view/Icons/instrument/default.svg');
                 
                 } """):
@@ -33,7 +33,7 @@ class InstrumentView(QWidget):
 
     def init(self):
         # Regular Expression to set stylesheet
-        self.style = style(self.instName)
+        self.style = style(self.instName)[0]
 
 
 
@@ -45,7 +45,7 @@ class InstrumentView(QWidget):
         self.instrumentButton.setGeometry(QRect(0, 0, 80, 80))
         self.instrumentButton.clicked.connect(self.setInst)
         self.cancelButton = QPushButton('', self)
-        self.cancelButton.setGeometry(QRect(70, 0, 10, 10))
+        self.cancelButton.setGeometry(QRect(65, 5, 10, 10))
         self.cancelButton.setStyleSheet("""
             .QPushButton {
                 width: 10px;
@@ -89,6 +89,19 @@ class InstrumentContainer(QWidget):
         self.instLib = QComboBox()
         self.instLib.addItems(['{} {}'.format(i, INSTRUMENT[i]) for i in INSTRUMENT])
         self.instLib.currentIndexChanged.connect(self.addInst)
+        self.instLib.setStyleSheet("""
+            .QComboBox {
+                width: 130px;
+                height: 75px;
+                border-style: outset;
+                border-width: 2px;
+                border-radius: 5px;
+                border-color: beige;
+                font: 15px Verdana;
+                font-weight: bold;
+                color: black;
+
+            }""")
         self.instLayout.addWidget(self.instLib)
         self.instLayout.addStretch(0)
         self.setLayout(self.instLayout)

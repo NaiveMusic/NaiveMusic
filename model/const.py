@@ -173,10 +173,11 @@ def style(instName):
                 border-radius: 10px;
                 border-color: beige;
                 padding: 15px;
-                background-color: rgb(255, 255, 111);
+                background-color: rgb(204, 255, 229);
                 image: url('view/Icons/instrument/piano.svg');
             
             }"""
+        color = "rgb(204, 255, 229)"
     elif re.search(p3, instName):
         style = """
             .QPushButton {
@@ -187,11 +188,11 @@ def style(instName):
                 border-radius: 10px;
                 border-color: beige;
                 padding: 15px;
-                background-color: rgb(255, 255, 111);
+                background-color: rgb(255, 204, 204);
                 image: url('view/Icons/instrument/bass.svg');
             
             }"""
-
+        color = "rgb(255, 204, 204)"
     elif re.search(p4, instName):
         style = """
             .QPushButton {
@@ -202,10 +203,11 @@ def style(instName):
                 border-radius: 10px;
                 border-color: beige;
                 padding: 15px;
-                background-color: rgb(255, 255, 111);
+                background-color: rgb(102, 178, 255);
                 image: url('view/Icons/instrument/guitar.svg');
             
             }"""
+        color = "rgb(102, 178, 255)"
     elif re.search(p5, instName):
         style = """
             .QPushButton {
@@ -216,10 +218,11 @@ def style(instName):
                 border-radius: 10px;
                 border-color: beige;
                 padding: 15px;
-                background-color: rgb(255, 255, 111);
+                background-color: rgb(160, 160, 160);
                 image: url('view/Icons/instrument/drum.svg');
             
             }"""
+        color = "rgb(160, 160, 160)"
     else:
         style = """
             .QPushButton {
@@ -234,8 +237,9 @@ def style(instName):
                 image: url('view/Icons/instrument/default.svg');
                 
             } """
+        color = "rgb(255, 255, 111)"
 
-    return style
+    return style, color
 
             
 
