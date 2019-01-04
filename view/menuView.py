@@ -51,59 +51,59 @@ class Menu(QWidget):
                 border-color: beige;
                 padding: 15px;
             }""")
-        self.newButton = QPushButton('New Project', self.dialog)
-        self.newButton.setStyleSheet("""
-                .QPushButton {
-                    width: 200px;
-                    height: 25px;
-                    font: 25px Verdana;
-                    font-weight: bold;
-                    color: white;
-                    border-style: outset;
-                    border-width: 5px;
-                    border-radius: 10px;
-                    border-color: black;
-                    padding: 15px;
-                }""")
-        self.newButton.clicked.connect(self.newFile)
-        self.newButton.move(15, ypos)
-        ypos = ypos + step
+        # self.newButton = QPushButton('New Project', self.dialog)
+        # self.newButton.setStyleSheet("""
+        #         .QPushButton {
+        #             width: 200px;
+        #             height: 25px;
+        #             font: 25px Verdana;
+        #             font-weight: bold;
+        #             color: white;
+        #             border-style: outset;
+        #             border-width: 5px;
+        #             border-radius: 10px;
+        #             border-color: black;
+        #             padding: 15px;
+        #         }""")
+        # self.newButton.clicked.connect(self.newFile)
+        # self.newButton.move(15, ypos)
+        # ypos = ypos + step
 
-        self.loadButton = QPushButton('Load Project', self.dialog)
-        self.loadButton.setStyleSheet("""
-                .QPushButton {
-                    width: 200px;
-                    height: 25px;
-                    font: 25px Verdana;
-                    font-weight: bold;
-                    color: white;
-                    border-style: outset;
-                    border-width: 5px;
-                    border-radius: 10px;
-                    border-color: black;
-                    padding: 15px;
-                }""")
-        self.loadButton.clicked.connect(self.openFile)
-        self.loadButton.move(15, ypos)
-        ypos = ypos + step
+        # self.loadButton = QPushButton('Load Project', self.dialog)
+        # self.loadButton.setStyleSheet("""
+        #         .QPushButton {
+        #             width: 200px;
+        #             height: 25px;
+        #             font: 25px Verdana;
+        #             font-weight: bold;
+        #             color: white;
+        #             border-style: outset;
+        #             border-width: 5px;
+        #             border-radius: 10px;
+        #             border-color: black;
+        #             padding: 15px;
+        #         }""")
+        # self.loadButton.clicked.connect(self.openFile)
+        # self.loadButton.move(15, ypos)
+        # ypos = ypos + step
 
-        self.saveButton = QPushButton('Save project', self.dialog)
-        self.saveButton.setStyleSheet("""
-                .QPushButton {
-                    width: 200px;
-                    height: 25px;
-                    font: 25px Verdana;
-                    font-weight: bold;
-                    color: white;
-                    border-style: outset;
-                    border-width: 5px;
-                    border-radius: 10px;
-                    border-color: black;
-                    padding: 15px;
-                }""")
-        self.saveButton.clicked.connect(self.saveFile)
-        self.saveButton.move(15, ypos)
-        ypos = ypos + step
+        # self.saveButton = QPushButton('Save project', self.dialog)
+        # self.saveButton.setStyleSheet("""
+        #         .QPushButton {
+        #             width: 200px;
+        #             height: 25px;
+        #             font: 25px Verdana;
+        #             font-weight: bold;
+        #             color: white;
+        #             border-style: outset;
+        #             border-width: 5px;
+        #             border-radius: 10px;
+        #             border-color: black;
+        #             padding: 15px;
+        #         }""")
+        # self.saveButton.clicked.connect(self.saveFile)
+        # self.saveButton.move(15, ypos)
+        # ypos = ypos + step
 
 
         self.exportButton = QPushButton('Export wav', self.dialog)
@@ -191,7 +191,9 @@ class Menu(QWidget):
     def openFile(self):
         fname = QFileDialog.getOpenFileName(self, 'Open file', '../', "Midi (*.mid)")
         if fname[0]:
-            self.mc.loadFile(fname[0])
+            # self.mc.loadFile(fname[0])
+            self.mc._curFile.midiToFile(fname[0])
+            self.mc.notify()
 
     def saveFile(self):
         fname = QFileDialog.getSaveFileName(self, 'Save file', '../', "NM (*.nm)")

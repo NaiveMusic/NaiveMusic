@@ -78,7 +78,6 @@ class SheetController(BaseController):
             self._curTrack.addNote(key, vel, self._toTick(on), self._toTick(off))
             self._curPos = off
         else:
-            print('fuck')
             pass
 
         self._state = STATE.EDITING
