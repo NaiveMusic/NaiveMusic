@@ -65,7 +65,7 @@ class Menu(QWidget):
                     border-color: black;
                     padding: 15px;
                 }""")
-        self.newButton.clicked.connect(self.openFile)
+        self.newButton.clicked.connect(self.newFile)
         self.newButton.move(15, ypos)
         ypos = ypos + step
 
@@ -101,7 +101,7 @@ class Menu(QWidget):
                     border-color: black;
                     padding: 15px;
                 }""")
-        self.saveButton.clicked.connect(self.openFile)
+        self.saveButton.clicked.connect(self.saveFile)
         self.saveButton.move(15, ypos)
         ypos = ypos + step
 
@@ -120,7 +120,7 @@ class Menu(QWidget):
                     border-color: black;
                     padding: 15px;
                 }""")
-        self.exportButton.clicked.connect(self.openFile)
+        self.exportButton.clicked.connect(self.save2Wav)
         self.exportButton.move(15, ypos)
         ypos = ypos + step
 
@@ -139,7 +139,7 @@ class Menu(QWidget):
                     border-color: black;
                     padding: 15px;
                 }""")
-        self.midiButton.clicked.connect(self.openFile)
+        self.midiButton.clicked.connect(self.save2Midi)
         self.midiButton.move(15, ypos)
         ypos = ypos + step
 
@@ -185,23 +185,29 @@ class Menu(QWidget):
         self.dialog.setWindowModality(Qt.ApplicationModal)
         self.dialog.exec_()
 
+    def newFile(self):
+        self.mc.newFile()
 
     def openFile(self):
-        '''
-            Load a file either midi or project from system
-
-            File name is further processed via maincontroller
-            
-        '''
         fname = QFileDialog.getOpenFileName(self, 'Open file', '../', "Midi (*.mid)")
         if fname[0]:
-            self.processFile(fname[0])
+            self.mc.loadFile(fname[0])
 
     def saveFile(self):
-        pass
+        fname = QFileDialog.getSaveFileName(self, 'Save file', '../', "NM (*.nm)")
+        if fname[0]:
+            self.mc.saveFile(fname[0])
+
+    def save2Wav(self):
+        fname = QFileDialog.getSaveFileName(self, 'Export to wav', '../', "WAV (*.wav)")
+        if fname[0]:
+            # self.mc.playAll(self, 'wav', fname[0])
+            self.mc.export('wav',fname[0])
+
+    def save2Midi(self):
+        fname = QFileDialog.getSaveFileName(self, 'Export to midi', '../', "MIDI (*.mid)")
+        if fname[0]:
+            # self.mc.playAll(self, 'mid', fname[0])
+            self.mc.export('mid',fname[0])
 
 
-    def processFile(self, filename):
-        print('{0} process complete !'.format(filename))
-        # TODO Process input file
-        pass

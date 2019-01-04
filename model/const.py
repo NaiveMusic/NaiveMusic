@@ -14,7 +14,7 @@ DEFAULT_BPM = 120
 KEY_TOP = 108
 
 # TICKS_PER_BEAT
-DELTA = 480
+DELTA = 120
 
 KEY_RANGE = range(0, 128)
 
@@ -155,13 +155,17 @@ INSTRUMENT = {
     127: 'Gun Shot',
 }
 
-def style(instName):
+def style(instName, state=True):
     p1 = r"Piano"
     p2 = r"Grand"
     p3 = r"Bass"
     p4 = r"Guitar"
     p5 = r"Drum"
     p6 = r"Organ"
+    if state:
+        border_color = "beige"
+    else:
+        border_color = "black"
 
     if re.search(p1, instName) or re.search(p2, instName) or re.search(p6, instName) :
         style = """
@@ -171,12 +175,12 @@ def style(instName):
                 border-style: outset;
                 border-width: 2px;
                 border-radius: 10px;
-                border-color: beige;
+                border-color: %s;
                 padding: 15px;
                 background-color: rgb(204, 255, 229);
                 image: url('view/Icons/instrument/piano.svg');
             
-            }"""
+            }""" % (border_color)
         color = "rgb(204, 255, 229)"
     elif re.search(p3, instName):
         style = """
@@ -186,12 +190,12 @@ def style(instName):
                 border-style: outset;
                 border-width: 2px;
                 border-radius: 10px;
-                border-color: beige;
+                border-color: %s;
                 padding: 15px;
                 background-color: rgb(255, 204, 204);
                 image: url('view/Icons/instrument/bass.svg');
             
-            }"""
+            }""" % (border_color)
         color = "rgb(255, 204, 204)"
     elif re.search(p4, instName):
         style = """
@@ -201,12 +205,12 @@ def style(instName):
                 border-style: outset;
                 border-width: 2px;
                 border-radius: 10px;
-                border-color: beige;
+                border-color: %s;
                 padding: 15px;
                 background-color: rgb(102, 178, 255);
                 image: url('view/Icons/instrument/guitar.svg');
             
-            }"""
+            }""" % (border_color)
         color = "rgb(102, 178, 255)"
     elif re.search(p5, instName):
         style = """
@@ -216,12 +220,12 @@ def style(instName):
                 border-style: outset;
                 border-width: 2px;
                 border-radius: 10px;
-                border-color: beige;
+                border-color: %s;
                 padding: 15px;
                 background-color: rgb(160, 160, 160);
                 image: url('view/Icons/instrument/drum.svg');
             
-            }"""
+            }""" % (border_color)
         color = "rgb(160, 160, 160)"
     else:
         style = """
@@ -231,12 +235,13 @@ def style(instName):
                 border-style: outset;
                 border-width: 2px;
                 border-radius: 10px;
-                border-color: beige;
+                border-color: %s;
                 padding: 15px;
                 background-color: rgb(255, 255, 111);
                 image: url('view/Icons/instrument/default.svg');
                 
-            } """
+            } """ % (border_color)
+
         color = "rgb(255, 255, 111)"
 
     return style, color
