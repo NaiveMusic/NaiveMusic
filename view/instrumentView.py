@@ -57,6 +57,7 @@ class InstrumentView(QWidget):
 
 
     def deleteInstrument(self):
+        self.instc.delInst(self.instrumentID)
         self.deleteLater()
         if self.mc.getSelectedInst() is not None and self.instrumentID == self.mc.getSelectedInst():
             self.mc.setSelectedInst(None)
@@ -120,6 +121,9 @@ class InstrumentContainer(QWidget):
 
     def getCurInstID(self):
         return self.mc.getSelectedInst()
+
+    def delInst(self, instID):
+        del self.instList[instID]
 
     def addInst(self):
         instID = self.instLib.currentIndex()
