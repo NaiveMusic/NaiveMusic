@@ -36,6 +36,9 @@ class SheetView_Demo(QtWidgets.QWidget):
         # Change above
 
     def setupUi(self, MainWindow):
+        # 当前Track
+        self.curTrack = None
+
         # Note 个数
         self.ROWMAX = 84
         self.COLMAX = 50
@@ -252,31 +255,47 @@ class SheetView_Demo(QtWidgets.QWidget):
     # 更新全部sheet
     def update(self):
         print('updating')
-        # return
-        # 清空sheet
-        for note in self.noteDict.values():
-            note.startFrom = 0
-            note.applyStyle()
-            note.setChecked(False)
+        if self.curTrack is not None:
+            # 清空sheet
+            eraseList = self.mc.getAnyTrackNotesInfo(
+                self.curTrack, keys=KEY_RANGE, on=0, off=self.COLMAX)
+            for noteInfo in eraseList:
+                # 单音清空
+                if noteInfo['On'] == noteInfo['Off'] - 1:
+                    self.noteDict['Note_' + str(KEY_TOP - noteInfo['Key']) + '_' +
+                                str(noteInfo['On'])].setChecked(False)
+                # 长音清空
+                else:
+                    i = noteInfo['On']
+                    while i < noteInfo['Off']:
+                        drawingNote = self.noteDict['Note_' +
+                                                    str(KEY_TOP - noteInfo['Key'])
+                                                    + '_' + str(i)]
+                        drawingNote.setChecked(False)
+                        drawingNote.startFrom = 0
+                        drawingNote.applyStyle()
+                        i += 1
         # 获取note信息并绘制
-        noteInfoList = self.mc.getNotesInfo(
-            keys=KEY_RANGE, on=0, off=self.COLMAX)
-        for noteInfo in noteInfoList:
-            # 单音绘制
-            if noteInfo['On'] == noteInfo['Off'] - 1:
-                self.noteDict['Note_' + str(KEY_TOP - noteInfo['Key']) + '_' +
-                              str(noteInfo['On'])].setChecked(True)
-            # 长音绘制
-            else:
-                i = noteInfo['On']
-                while i < noteInfo['Off']:
-                    drawingNote = self.noteDict['Note_' +
-                                                str(KEY_TOP - noteInfo['Key'])
-                                                + '_' + str(i)]
-                    drawingNote.setChecked(True)
-                    drawingNote.startFrom = noteInfo['On']
-                    drawingNote.applyStyle()
-                    i += 1
+        self.curTrack = self.mc.getCurTrackID()
+        if self.curTrack is not None:
+            noteInfoList = self.mc.getAnyTrackNotesInfo(
+                self.curTrack, keys=KEY_RANGE, on=0, off=self.COLMAX)
+            for noteInfo in noteInfoList:
+                # 单音绘制
+                if noteInfo['On'] == noteInfo['Off'] - 1:
+                    self.noteDict['Note_' + str(KEY_TOP - noteInfo['Key']) + '_' +
+                                str(noteInfo['On'])].setChecked(True)
+                # 长音绘制
+                else:
+                    i = noteInfo['On']
+                    while i < noteInfo['Off']:
+                        drawingNote = self.noteDict['Note_' +
+                                                    str(KEY_TOP - noteInfo['Key'])
+                                                    + '_' + str(i)]
+                        drawingNote.setChecked(True)
+                        drawingNote.startFrom = noteInfo['On']
+                        drawingNote.applyStyle()
+                        i += 1
         print('update finished')
 
     def retranslateUi(self, MainWindow):
@@ -365,7 +384,8 @@ class NMPushButton(QtWidgets.QPushButton):
 
     def mouseReleaseEvent(self, QMouseEvent):
         # 对拖拽与右键事件不响应
-        if self.startFrom != 0 or QMouseEvent.button() == QtCore.Qt.RightButton:
+        if self.startFrom != 0 or QMouseEvent.button(
+        ) == QtCore.Qt.RightButton:
             return
         print("[ADD] Single note: " + self.objectName())
         # [ADD] Single note
