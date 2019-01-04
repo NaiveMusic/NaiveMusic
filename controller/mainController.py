@@ -69,6 +69,39 @@ class MainController(SheetController, AudioController):
         self._state = STATE.DEFAULT
         self.notify()
 
+    def getNotesInfo(self, trackID, keys, on, off):
+        """ Fetches info of all notes satisfying that
+            1) note.key is in list of keys;
+            2) the interval [note.on, note.off) has non-empty intersection with [on,off).
+        
+        Keyword Args:
+            keys (<list>int): the list of 'key' property.
+            on (int): the start time of the interval.
+            off (int): the end time of the interval.
+
+        Return: a list-dict structure. For example:
+                [noteInfo1,noteInfo2,noteInfo3]
+            where
+                noteInfo1 = {'key':18,'vel':100,'on':13,'off':14},
+                noteInfo2 = {'key':19,'vel':100,'on':14,'off':15},
+                noteInfo3 = {'key':16,'vel':100,'on':15,'off':16}.
+
+        P.S.
+            Notes are not neccessarily contained in the area.
+        """
+        noteInfoList = []
+        track = self.getTrack(trackID)
+        noteIDList = track.search(on=self._toTick(on), off=self._toTick(off), keys=keys)
+        for noteID in noteIDList:
+            note = track.getNote(noteID)
+            noteInfo = {}
+            noteInfo['Key'] = note.key
+            noteInfo['Velocity'] = note.vel
+            noteInfo['On'] = self._toSec(note.on)
+            noteInfo['Off'] = self._toSec(note.off)
+            noteInfoList.append(noteInfo)
+        return noteInfoList
+
     # File part
     def setBPM(self, bpm):
         if not isinstance(bpm, int) or bpm < 0 or bpm > 200:
@@ -80,6 +113,7 @@ class MainController(SheetController, AudioController):
 
     def newFile(self):
         self._curFile = File(bpm=DEFAULT_BPM)
+        self.notify()
 
     def saveFile(self, fileName='temp.nm'):
         pickle.dump(self._curFile, fileName)
@@ -91,8 +125,8 @@ class MainController(SheetController, AudioController):
         except:
             print('filename not exists!')
         self.notify()
-    
-    def export(self,fileType,fileName):
+
+    def export(self, fileType, fileName):
         '''
         fileType should be str, current support 'wav' and 'mid'
         '''
@@ -105,8 +139,7 @@ class MainController(SheetController, AudioController):
             self._getSample(buf, mid.length, export=True, filename=fileName)
         else:
             raise NotImplementedError
-        
-    
+
     # Selection part
     def getSelectedInst(self):
         return self._selectedInst
