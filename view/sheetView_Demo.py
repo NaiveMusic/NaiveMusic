@@ -299,23 +299,19 @@ class NMPushButton(QtWidgets.QPushButton):
     def mousePressEvent(self, QMouseEvent):
         if QMouseEvent.button() == QtCore.Qt.LeftButton:
             self.setChecked(True)
-            print(self.objectName() + ': ' +
-                  "on" if self.isChecked() else "off")
-            # add note
-            data = self.objectName().split('_')
-            key = KEY_TOP - int(data[1])
-            on = int(data[2])
+            print("[ADD] Single note: " + self.objectName())
+            # [ADD] Single note
+            key = KEY_TOP - self.row
+            on = self.col
             off = on + 1
             self.mc.addNote(key=key, vel=100, on=on, off=off)
         elif QMouseEvent.button() == QtCore.Qt.RightButton:
             if self.startFrom == 0:
                 self.setChecked(False)
-                print(self.objectName() + ': ' +
-                      ("on" if self.isChecked() else "off"))
-                # delete note
-                data = self.objectName().split('_')
-                key = KEY_TOP - int(data[1])
-                on = int(data[2])
+                print("[DELETE] Single note: " + self.objectName())
+                # [Delete] Single note
+                key = KEY_TOP - self.row
+                on = self.col
                 off = on + 1
                 self.mc.delNote(key=key, on=on, off=off)
             else:
@@ -325,9 +321,11 @@ class NMPushButton(QtWidgets.QPushButton):
                     i = i + 1
                     if ('Note_' + str(self.row) + '_' +
                             str(i)) not in self.noteDict.keys():
+                        off = i
                         break
                     if self.noteDict['Note_' + str(self.row) + '_' +
                                      str(i)].startFrom != self.startFrom:
+                        off = i
                         break
                     self.noteDict['Note_' + str(self.row) + '_' +
                                   str(i)].setChecked(False)
@@ -335,15 +333,18 @@ class NMPushButton(QtWidgets.QPushButton):
                                   str(i)].startFrom = 0
                     self.noteDict['Note_' + str(self.row) + '_' +
                                   str(i)].applyStyle()
+                    off = i + 1
                 # 向左删除
                 i = self.col
                 while True:
                     i = i - 1
                     if ('Note_' + str(self.row) + '_' +
                             str(i)) not in self.noteDict.keys():
+                        on = i + 1
                         break
                     if self.noteDict['Note_' + str(self.row) + '_' +
                                      str(i)].startFrom != self.startFrom:
+                        on = i + 1
                         break
                     self.noteDict['Note_' + str(self.row) + '_' +
                                   str(i)].setChecked(False)
@@ -351,9 +352,16 @@ class NMPushButton(QtWidgets.QPushButton):
                                   str(i)].startFrom = 0
                     self.noteDict['Note_' + str(self.row) + '_' +
                                   str(i)].applyStyle()
+                    on = i
                 self.setChecked(False)
                 self.startFrom = 0
                 self.applyStyle()
+                print(
+                    f"[DELETE] Long note: from Note_{self.row}_{on} to Note_{self.row}_{off-1}"
+                )
+                # [Delete] Long note
+                key = KEY_TOP - self.row
+                self.mc.delNote(key=key, on=on, off=off)
 
     def mouseMoveEvent(self, e):
         if e.buttons() != QtCore.Qt.LeftButton:
@@ -446,8 +454,13 @@ class NMPushButton(QtWidgets.QPushButton):
             startNote.startFrom = 0
             startNote.applyStyle()
         else:
-            print("Long note from " + QMouseEvent.mimeData().text() + " to " +
-                  endNote.objectName())
+            print("[ADD] Long note: from " + QMouseEvent.mimeData().text() +
+                  " to " + endNote.objectName() + ", covering last line ↑.")
+            # [ADD] Long note
+            key = KEY_TOP - endNote.row
+            on = startNote.col
+            off = endNote.col + 1
+            self.mc.addNote(key=key, vel=100, on=on, off=off)
 
     def applyStyle(self):
         if self.startFrom == 0:
