@@ -14,6 +14,7 @@ from lib.mido import Message, MidiFile, MidiTrack, bpm2tempo, MetaMessage
 
 class AudioController(BaseController):
     def __init__(self):
+        # 全平台支持,只需提供编译好的fluidsynth库即可
         os.chdir('./lib/fluidsynth')
         if os.sys.platform.startswith('win'):
             lib = windll.LoadLibrary('libfluidsynth-2.dll')
@@ -27,6 +28,8 @@ class AudioController(BaseController):
 
         self._fl = lib
         self._initFuncs()
+
+        #初始化Fluidsynth库
         self._settings = self._new_fluid_settings()
         self._fluid_settings_setstr(self._settings, b"player.timing-source", b"sample")
         self._fluid_settings_setint(self._settings, b"synth.lock-memory", 0)
@@ -34,6 +37,7 @@ class AudioController(BaseController):
         self._fluid_synth_sfload(self._synth, b"GeneralUser_GS.sf2", 1)
         os.chdir('../..')
 
+        #初始化pyaudio库
         self._pa = pyaudio.PyAudio()
         self._strm = self._pa.open(format=pyaudio.paInt16, channels=2, rate=44100, output=True, start=False,
                                    stream_callback=self._callback)
@@ -46,6 +50,7 @@ class AudioController(BaseController):
         self._pa.terminate()
         self._wf.close()
 
+    #回调函数,会自动终止播放
     def _callback(self, in_data, frame_count, time_info, status):
         data = self._wf.readframes(frame_count)
         if len(data) < 4096:
@@ -53,6 +58,7 @@ class AudioController(BaseController):
         return (data, pyaudio.paContinue)
 
     def _play(self, buf, length):
+        #需等待播放结束或停止
         if self._strm.is_active():
             print('playing!')
             return
@@ -68,6 +74,7 @@ class AudioController(BaseController):
         self._strm.stop_stream()
 
     def _playSingle(self, inst, key):
+        # 试音部分
         track = MidiTrack()
         track.append(Message('program_change', channel=0, program=inst, time=0))
         track.append(Message('note_on', channel=0, note=key, velocity=100, time=0))
@@ -90,6 +97,7 @@ class AudioController(BaseController):
         self._fluid_player_add_mem(player, buf, len(buf))
         self._fluid_player_play(player)
 
+        # 转化为内存中的buffer，无需借助文件
         length = int(44100 * length)
         buf = create_string_buffer(length * 4)
         self._fluid_synth_write_s16(self._synth, length, buf, 0, 2, buf, 1, 2)
@@ -98,6 +106,8 @@ class AudioController(BaseController):
         self._fluid_player_stop(player)
         self._fluid_player_join(player)
         self._delete_fluid_player(player)
+
+        #如果导出，则创建wav文件
         if export: buf = open(filename, 'wb')
         else: buf = BytesIO()
 
@@ -109,6 +119,7 @@ class AudioController(BaseController):
         if export: buf.close()
         else: self._wf = wave.open(buf, 'rb')
 
+    #用于调用c中函数
     def _cfunc(self, name, result, *args):
         atypes, aflags = [], []
         for arg in args:
@@ -116,8 +127,9 @@ class AudioController(BaseController):
             aflags.append((arg[2], arg[0]) + arg[3:])
         return CFUNCTYPE(result, *atypes)((name, self._fl), tuple(aflags))
 
+    #初始化fluidsynth库中API
     def _initFuncs(self):
-        #settings
+        #settings part
         self._new_fluid_settings = self._cfunc('new_fluid_settings', c_void_p)
 
         self._fluid_settings_setstr = self._cfunc('fluid_settings_setstr', c_int,\
@@ -130,7 +142,7 @@ class AudioController(BaseController):
                                                 ('name', c_char_p, 1),\
                                                 ('val', c_int, 1))
 
-        #new
+        #new part
         self._new_fluid_synth = self._cfunc('new_fluid_synth', c_void_p,\
                                           ('settings', c_void_p, 1))
 
@@ -146,7 +158,7 @@ class AudioController(BaseController):
                                              ('filename', c_char_p, 1),\
                                              ('update_midi_presets', c_int, 1))\
 
-        #player
+        #player part
         self._fluid_player_add = self._cfunc('fluid_player_add',c_void_p,\
                                            ('player',c_void_p,1),\
                                            ('midifile',c_char_p,1))
@@ -165,7 +177,7 @@ class AudioController(BaseController):
         self._fluid_player_join = self._cfunc('fluid_player_join',c_void_p,\
                                             ('player',c_void_p,1))
 
-        #delete
+        #delete part
         self._delete_fluid_audio_driver = self._cfunc('delete_fluid_audio_driver', None,\
                                                     ('driver', c_void_p, 1))
 

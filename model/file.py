@@ -62,12 +62,14 @@ class File():
                     print(f'Message {msg} not supported yet!')
                 if not msg.is_meta:
                     curTime += msg.time
-
-    # def toDemoMidi(self):
-    #     mid = MidiFile()
-    #     for i, track in enumerate(self.tracks.values()):
-    #         midiTrack = track.toDemoMidi(bpm=self.bpm, channel=i, save=False)
-    #         mid.tracks.append(midiTrack)
-    #     self.buf = BytesIO()
-    #     mid.save(file=self.buf)
-    #     return mid.length
+    #Demo part
+    """
+    def toDemoMidi(self):
+        mid = MidiFile()
+        for i, track in enumerate(self.tracks.values()):
+            midiTrack = track.toDemoMidi(bpm=self.bpm, channel=i, save=False)
+            mid.tracks.append(midiTrack)
+        self.buf = BytesIO()
+        mid.save(file=self.buf)
+        return mid.length
+    """

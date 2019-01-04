@@ -22,6 +22,7 @@ class MainController(SheetController, AudioController):
 
     # Track part
     def getTrack(self, trackID):
+        '''Track ID needed'''
         if trackID not in self._curFile.tracks:
             raise ValueError('Track ID {} not found when get'.format(trackID))
         return self._curFile.tracks[trackID]
@@ -33,12 +34,15 @@ class MainController(SheetController, AudioController):
         return len(self._curFile.tracks)
 
     def getTrackInst(self, trackID):
+        '''Track ID needed'''
         return self.getTrack(trackID).inst
 
     def getTrackVel(self, trackID):
+        '''Track ID needed'''
         return self.getTrack(trackID).vel
 
     def setCurTrack(self, trackID):
+        '''Track ID needed'''
         if trackID == None:
             self._curTrack = None
             self._curTrackID = None
@@ -46,21 +50,25 @@ class MainController(SheetController, AudioController):
             self._switchTrack(trackID, self.getTrack(trackID))
 
     def setTrackInst(self, trackID, inst):
+        '''Track ID, and inst number needed'''
         if inst not in INSTRUMENT:
             raise ValueError('Instrument {} not found'.format(inst))
         self.getTrack(trackID).inst = inst
 
     def setTrackVel(self, trackID, vel):
+        '''Track ID, and vel number needed'''
         if not isinstance(vel, int) or vel not in VEL_RANGE:
             raise ValueError('Velocity must be int within 0~127, not {}'.format(vel))
         self.getTrack(trackID).vel = vel
 
     def addTrack(self, inst=0, vel=100):
+        '''Inst number and vel nuber needed, with default 0(piano) and 100'''
         if self.getTrackNum() >= MAX_TRACK_NUM:
             raise OverflowError('Track numbers cannot exceed {}'.format(MAX_TRACK_NUM))
         return self._curFile.addTrack(inst, vel)
 
     def delTrack(self, trackID):
+        '''Track ID needed'''
         if trackID not in self._curFile.tracks:
             raise ValueError('Track ID {} not found when del'.format(trackID))
         if trackID == self._curTrackID:
@@ -104,7 +112,6 @@ class MainController(SheetController, AudioController):
             noteInfoList.append(noteInfo)
         return noteInfoList
 
-
         
     # File part
     def setBPM(self, bpm):
@@ -119,10 +126,17 @@ class MainController(SheetController, AudioController):
         self._curFile = File(bpm=DEFAULT_BPM)
 
     def saveFile(self, fileName='temp.nm'):
-        pickle.dump(self._curFile, fileName)
+        '''use midi instead!'''
+        return
+        try:
+            pickle.dump(self._curFile, fileName)
+        except:
+            print('use midi instead!')
         return
 
     def loadFile(self, fileName='temp.nm'):
+        '''use midi instead!'''
+        return
         try:
             self._curFile = pickle.load(fileName)
         except:
@@ -142,8 +156,8 @@ class MainController(SheetController, AudioController):
             self._getSample(buf, mid.length, export=True, filename=fileName)
         else:
             raise NotImplementedError
-        
     
+
     # Selection part
     def getSelectedInst(self):
         return self._selectedInst
@@ -153,28 +167,35 @@ class MainController(SheetController, AudioController):
 
     # Play part
     def playAll(self):
+        '''read all tracks and play'''
         mid = self._curFile.toMidi()
         buf = BytesIO()
         mid.save(file=buf)
         self._play(buf, mid.length)
 
     def playSingle(self, key):
+        '''use in piano roll'''
         self._playSingle(self._curTrack.inst, key)
 
     def pauseAll(self):
+        '''pause all, including playAll and playTrack'''
         self._pause()
 
     def playTrack(self, trackID):
+        ''''read certain track and play'''
         mid = self.getTrack(trackID).toMidi(self.getBPM())
         buf = BytesIO()
         mid.save(file=buf)
         self._play(buf, mid.length)
 
-    # Demo play part
-    # def playAllDemo(self):
-    #     self.length = self._curFile.toDemoMidi()
-    #     self._play(self._curFile.buf, self.length, True)
+    # Demo part
+    """
+    Demo play part
+    def playAllDemo(self):
+        self.length = self._curFile.toDemoMidi()
+        self._play(self._curFile.buf, self.length, True)
 
-    # def playTrackDemo(self, trackID):
-    #     length = self.getTrack(trackID).toDemoMidi(self.getBPM())
-    #     self._play(self.getTrack(trackID).buf, length)
+    def playTrackDemo(self, trackID):
+        length = self.getTrack(trackID).toDemoMidi(self.getBPM())
+        self._play(self.getTrack(trackID).buf, length)
+    """
