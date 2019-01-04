@@ -309,4 +309,7 @@ class SheetController(BaseController):
         return int(sec) * int(DELTA)
 
     def _toSec(self, tick):
-        return round(tick / float(DELTA))
+        ret =  round(tick / float(DELTA))
+        if ret == 0:
+            return 1
+        return ret
