@@ -15,8 +15,6 @@ class SheetView_Demo(QtWidgets.QWidget):
         self.mc.register(self)
         self.setupUi(self)
         self.initPianoRoll()
-        # self.ROWMAX = 0
-        # self.COLMAX = 0
 
     # PianoRoll
     def initPianoRoll(self):
@@ -39,7 +37,7 @@ class SheetView_Demo(QtWidgets.QWidget):
 
     def setupUi(self, MainWindow):
         # Note 个数
-        self.ROWMAX = 13
+        self.ROWMAX = 84
         self.COLMAX = 50
 
         # sheetSection: PianoRoll, Sheet, Velocity
@@ -93,27 +91,30 @@ class SheetView_Demo(QtWidgets.QWidget):
                 )
             else:
                 self.keyDict[keyName].setStyleSheet(
-                    "QPushButton:!pressed { background-color: rgb(0, 0, 0); }\n"
-                    "QPushButton:pressed { background-color: rgb(75, 75, 75); }"
+                    "QPushButton:!pressed { background-color: rgb(0, 0, 0); color: white; }\n"
+                    "QPushButton:pressed { background-color: rgb(75, 75, 75); color: white; }"
                 )
-            self.keyDict[keyName].setText("")
+            self.keyDict[keyName].setText(keyNum)
             self.keyDict[keyName].setCheckable(False)
             self.keyDict[keyName].setObjectName(keyName)
             self.PianoRoll.addWidget(self.keyDict[keyName], place, 0, 1, 1)
 
-        setKey('main', 8, 1)
-        setKey('main', 7, 2)
-        setKey('black', 6, 3)
-        setKey('main', 6, 4)
-        setKey('black', 5, 5)
-        setKey('main', 5, 6)
-        setKey('black', 4, 7)
-        setKey('main', 4, 8)
-        setKey('main', 3, 9)
-        setKey('black', 2, 10)
-        setKey('main', 2, 11)
-        setKey('black', 1, 12)
-        setKey('main', 1, 13)
+        i = 7
+        while i > 0:
+            offset = 84 - 12 * i
+            setKey('main', 'B' + str(i), 1 + offset)
+            setKey('black', 'A#' + str(i), 2 + offset)
+            setKey('main', 'A' + str(i), 3 + offset)
+            setKey('black', 'G#' + str(i), 4 + offset)
+            setKey('main', 'G' + str(i), 5 + offset)
+            setKey('black', 'F#' + str(i), 6 + offset)
+            setKey('main', 'F' + str(i), 7 + offset)
+            setKey('main', 'E' + str(i), 8 + offset)
+            setKey('black', 'D#' + str(i), 9 + offset)
+            setKey('main', 'D' + str(i), 10 + offset)
+            setKey('black', 'C#' + str(i), 11 + offset)
+            setKey('main', 'C' + str(i), 12 + offset)
+            i = i - 1
 
         self.pianoBoardWidget = QtWidgets.QWidget()
         self.pianoBoardWidget.setLayout(self.PianoRoll)
