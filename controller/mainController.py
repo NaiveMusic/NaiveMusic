@@ -43,8 +43,7 @@ class MainController(SheetController, AudioController):
             self._curTrack = None
             self._curTrackID = None
         else:
-            self.switchTrack(trackID, self.getTrack(trackID))
-        self.notify()
+            self._switchTrack(trackID, self.getTrack(trackID))
 
     def setTrackInst(self, trackID, inst):
         if inst not in INSTRUMENT:

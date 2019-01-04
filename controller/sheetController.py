@@ -37,7 +37,7 @@ class SheetController(BaseController):
     def getCurKey(self):
         return self._curKey
 
-    def switchTrack(self, trackID, track):
+    def _switchTrack(self, trackID, track):
         self._curTrackID = trackID
         self._curTrack = track
         self._curPos = 0
@@ -81,7 +81,7 @@ class SheetController(BaseController):
             pass
 
         self._state = STATE.EDITING
-        self.notify()
+        # self.notify()
 
     def delNote(self, **options):
         """ Delete all notes satisfying that
@@ -112,7 +112,7 @@ class SheetController(BaseController):
         self._curPos = on
 
         self._state = STATE.EDITING
-        self.notify()
+        # self.notify()
 
     def selectNote(self, key, on, off):
         """ Put all notes in range [on,off) into selection

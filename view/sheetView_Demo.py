@@ -252,7 +252,7 @@ class SheetView_Demo(QtWidgets.QWidget):
     # 更新全部sheet
     def update(self):
         print('updating')
-        return
+        # return
         # 清空sheet
         for note in self.noteDict.values():
             note.startFrom = 0
@@ -276,6 +276,8 @@ class SheetView_Demo(QtWidgets.QWidget):
                     drawingNote.setChecked(True)
                     drawingNote.startFrom = noteInfo['On']
                     drawingNote.applyStyle()
+                    i += 1
+        print('update finished')
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
