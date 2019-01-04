@@ -247,17 +247,31 @@ class SheetView_Demo(QtWidgets.QWidget):
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
+    # 更新全部sheet
     def update(self):
+        # 清空sheet
+        for note in self.noteDict:
+            note.startFrom = 0
+            note.applyStyle()
+            note.setChecked(False)
+        # 获取note信息并绘制
         noteInfoList = self.mc.getNotesInfo(
             keys=KEY_RANGE, on=0, off=self.COLMAX)
         for noteInfo in noteInfoList:
             # 单音绘制
             if noteInfo['On'] == noteInfo['Off'] - 1:
-                self.noteDict['Note_' + str(noteInfo['On']) + '_' + str(i)]
-
+                self.noteDict['Note_' + str(KEY_TOP - noteInfo['Key']) + '_' +
+                              str(noteInfo['On'])].setChecked(True)
             # 长音绘制
             else:
-                pass
+                i = noteInfo['On']
+                while i < noteInfo['Off']:
+                    drawingNote = self.noteDict['Note_' +
+                                                str(KEY_TOP - noteInfo['Key'])
+                                                + '_' + str(i)]
+                    drawingNote.setChecked(True)
+                    drawingNote.startFrom = noteInfo['On']
+                    drawingNote.applyStyle()
 
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
